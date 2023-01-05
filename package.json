@@ -73,6 +73,7 @@
         "@/db": "dist/db",
         "@/subscribers": "dist/subscribers",
         "@/tests": "dist/tests",
+        "@/utils": "dist/utils",
         "@/errors": "dist/errors"
     }
 }
