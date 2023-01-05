@@ -3,7 +3,7 @@ import { StatusCodes } from "http-status-codes"
 import CustomError from "@/errors/custom.error"
 
 
-const errorHandler = (err: any, req: Request, res: Response, next: NextFunction): Response => {
+const errorHandlerMiddleware = (err: any, req: Request, res: Response, next: NextFunction): Response => {
     let customError: CustomError = {
         name: err.name || "error",
         statusCode: err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
@@ -32,4 +32,4 @@ const errorHandler = (err: any, req: Request, res: Response, next: NextFunction)
       return res.status(customError.statusCode).json({ message: customError.message })
 }
 
-export default errorHandler
+export default errorHandlerMiddleware

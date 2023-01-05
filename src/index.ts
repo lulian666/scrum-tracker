@@ -1,6 +1,6 @@
-import app from './app'
-import 'dotenv/config'
 import 'module-alias/register'
+import 'dotenv/config'
+import app from './app'
 import connectDB from './db/connectDB'
 
 const PORT: number = Number(process.env.PORT) || 3000

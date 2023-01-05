@@ -7,10 +7,10 @@ import cors from 'cors'
 import mongoSanitize from 'express-mongo-sanitize'
 import compression from 'compression'
 import 'express-async-errors'
-import notFound from './middleware/notFound.middleware'
-import errorHandler from './middleware/errorHandler.middleware'
+import notFoundMiddleware from '@/middleware/notFound.middleware'
+import errorHandlerMiddleware from '@/middleware/errorHandler.middleware'
 
-import authRouter from './routes/auth.routes'
+import authRouter from '@/routes/auth.routes'
 
 
 const app: Application = express()
@@ -32,8 +32,8 @@ app.use(mongoSanitize())
 app.use('/api/v1/auth', authRouter)
 
 
-app.use(notFound)
-app.use(errorHandler)
+app.use(notFoundMiddleware)
+app.use(errorHandlerMiddleware)
 
 
 export default app
