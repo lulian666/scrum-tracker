@@ -1,7 +1,7 @@
 import 'module-alias/register'
 import 'dotenv/config'
 import app from './app'
-import connectDB from './db/connectDB'
+import connectDB from '@/utils/connectDB'
 
 const PORT: number = Number(process.env.PORT) || 3000
 const start = async () => {

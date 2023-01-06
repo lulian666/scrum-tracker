@@ -1,9 +1,16 @@
 import { StatusCodes } from "http-status-codes"
 import CustomError from '@/errors/index'
 import { Router, Request, Response, NextFunction } from 'express'
+import AuthService from "@/services/auth.service"
+import crypto from 'crypto'
 
 const register = async (req: Request, res: Response): Promise<Response | void> => {
-    res.send('register')
+    const { email, name, password } = req.body
+    const verificationToken = crypto.randomBytes(40).toString('hex')
+
+    await AuthService.register({ email, name, password, role: 'user', verificationToken })
+
+    res.status(StatusCodes.CREATED).json({ message: 'Please check your email for verification' })
 }
 
 const login = async (req: Request, res: Response): Promise<Response | void> => {

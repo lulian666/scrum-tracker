@@ -49,7 +49,7 @@
       "@/routes/*" : ["routes/*"],
       "@/services/*" : ["services/*"],
       "@/middleware/*" : ["middleware/*"],
-      "@/db/*" : ["db/*"],
+      "@/config/*" : ["config/*"],
       "@/subscribers/*" : ["subscribers/*"],
       "@/tests/*" : ["tests/*"],
       "@/utils/*" : ["utils/*"],
