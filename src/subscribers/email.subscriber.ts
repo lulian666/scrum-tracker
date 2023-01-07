@@ -1,17 +1,19 @@
 import EventEmitter from 'events'
-import sendEmail from "@/utils/sendEmail.util"
+import sendEmail from '@/utils/sendEmail.util'
 
-const eventEmitter = new EventEmitter()
+const sendVerificationEmail = async (email: string) => {
+    const eventEmitter = new EventEmitter()
 
-eventEmitter.on('signup', async (email) => {
-    const verifyLink = ``
-    return sendEmail({
-        to: 'email@email.com',
-        subject: 'Email Confirmation',
-        html: `<h1>test</h1>`,
+    eventEmitter.on('signup', async (email) => {
+        const verifyLink = ``
+        return sendEmail({
+            to: 'email@email.com',
+            subject: 'Email Confirmation',
+            html: `<h1>test</h1>`,
+        })
     })
+    return eventEmitter
 }
-)
 
 // const sendVerificationEmail = async ({
 //     name,
@@ -28,4 +30,4 @@ eventEmitter.on('signup', async (email) => {
 //     })
 // }
 
-export default eventEmitter
+export default { sendVerificationEmail }

@@ -29,6 +29,10 @@ app.use(compression())
 app.use(cookieParser(process.env.JWT_SECRET))
 app.use(mongoSanitize())
 
+app.get("/", (req, res) => {
+    res.status(200).send("Hello World!");
+  });
+
 app.use('/api/v1/auth', authRouter)
 
 
