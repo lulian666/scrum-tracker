@@ -5,9 +5,11 @@ import AuthService from '@/services/auth.service'
 import crypto from 'crypto'
 import utils from '../utils'
 import authService from '@/services/auth.service'
+import { authInfoRequest } from './request.definition'
+import Token from '@/models/Token.model'
 
 const register = async (
-    req: Request,
+    req: authInfoRequest,
     res: Response
 ): Promise<Response | void> => {
     const { email, name, password } = req.body
@@ -22,12 +24,14 @@ const register = async (
     })
 
     res.status(StatusCodes.CREATED).json({
-        message: 'Please check your email for verification',
-        user,
+        message: 'Please check your email for verification'
     })
 }
 
-const login = async (req: Request, res: Response): Promise<Response | void> => {
+const login = async (
+    req: authInfoRequest,
+    res: Response
+): Promise<Response | void> => {
     const { email, password } = req.body
     const userAgent = String(req.header('user-agent'))
     const ip = req.ip
@@ -37,20 +41,29 @@ const login = async (req: Request, res: Response): Promise<Response | void> => {
         userAgent,
         ip,
     })
-    console.log(refreshToken, tokenUser)
+
     utils.attachCookiesToResponse({ res, tokenUser, refreshToken })
     res.status(StatusCodes.OK).json({ user: tokenUser })
 }
 
 const logout = async (
-    req: Request,
+    req: authInfoRequest,
     res: Response
 ): Promise<Response | void> => {
-    res.send('logout')
+    await Token.findOneAndDelete({ user: req.user?.userId })
+    res.cookie('accessToken', 'logout', {
+        httpOnly: true,
+        expires: new Date(Date.now()),
+    })
+    res.cookie('refreshToken', 'logout', {
+        httpOnly: true,
+        expires: new Date(Date.now()),
+    })
+    res.status(StatusCodes.OK).json({ msg: 'User logged out!' })
 }
 
 const verifyEmail = async (
-    req: Request,
+    req: authInfoRequest,
     res: Response
 ): Promise<Response | void> => {
     const { verificationToken, email } = req.body
@@ -60,14 +73,14 @@ const verifyEmail = async (
 }
 
 const forgotPassword = async (
-    req: Request,
+    req: authInfoRequest,
     res: Response
 ): Promise<Response | void> => {
     res.send('forgotPassword')
 }
 
 const resetPassword = async (
-    req: Request,
+    req: authInfoRequest,
     res: Response
 ): Promise<Response | void> => {
     res.send('resetPassword')

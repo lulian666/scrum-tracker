@@ -24,7 +24,7 @@ const attachCookiesToResponse = ({
     tokenUser: tokenUserInterface
     refreshToken: string
 }): void => {
-    const accessTokenJWT = createJWT({ payload: { tokenUser } })
+    const accessTokenJWT = createJWT({ payload: { user:tokenUser } })
     const refreshTokenJWT = createJWT({
         payload: { user: tokenUser, refreshToken },
     })
