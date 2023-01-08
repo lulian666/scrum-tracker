@@ -1,15 +1,13 @@
 import { StatusCodes } from 'http-status-codes'
-import CustomError from '@/errors/index'
-import { Router, Request, Response, NextFunction } from 'express'
+import { Request, Response } from 'express'
 import AuthService from '@/services/auth.service'
 import crypto from 'crypto'
 import utils from '../utils'
 import authService from '@/services/auth.service'
 import { authInfoRequest } from './request.definition'
-import Token from '@/models/Token.model'
 
 const register = async (
-    req: authInfoRequest,
+    req: Request,
     res: Response
 ): Promise<Response | void> => {
     const { email, name, password } = req.body
@@ -24,14 +22,11 @@ const register = async (
     })
 
     res.status(StatusCodes.CREATED).json({
-        message: 'Please check your email for verification'
+        message: 'Please check your email for verification',
     })
 }
 
-const login = async (
-    req: authInfoRequest,
-    res: Response
-): Promise<Response | void> => {
+const login = async (req: Request, res: Response): Promise<Response | void> => {
     const { email, password } = req.body
     const userAgent = String(req.header('user-agent'))
     const ip = req.ip
@@ -50,7 +45,7 @@ const logout = async (
     req: authInfoRequest,
     res: Response
 ): Promise<Response | void> => {
-    await Token.findOneAndDelete({ user: req.user?.userId })
+    await authService.logout(req.user?.userId)
     res.cookie('accessToken', 'logout', {
         httpOnly: true,
         expires: new Date(Date.now()),
@@ -63,7 +58,7 @@ const logout = async (
 }
 
 const verifyEmail = async (
-    req: authInfoRequest,
+    req: Request,
     res: Response
 ): Promise<Response | void> => {
     const { verificationToken, email } = req.body
@@ -76,14 +71,21 @@ const forgotPassword = async (
     req: authInfoRequest,
     res: Response
 ): Promise<Response | void> => {
-    res.send('forgotPassword')
+    const { email } = req.body
+    await authService.forgotPassword(email)
+
+    res.status(StatusCodes.OK).json({
+        message: 'Please check your email for reset password link',
+    })
 }
 
 const resetPassword = async (
     req: authInfoRequest,
     res: Response
 ): Promise<Response | void> => {
-    res.send('resetPassword')
+    const { token, email, newPassword } = req.body
+    await authService.resetPassword({ token, email, newPassword })
+    res.status(StatusCodes.OK).send({ msg: 'Password changed' })
 }
 
 export default {

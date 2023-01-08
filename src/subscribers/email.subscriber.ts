@@ -15,6 +15,20 @@ const sendVerificationEmail = async (email: string) => {
     return eventEmitter
 }
 
+const sendResetPasswordEmail = async () => {
+    const eventEmitter = new EventEmitter()
+
+    eventEmitter.on('signup', async ({ email, passwordToken }) => {
+        const verifyLink = ``
+        return sendEmail({
+            to: 'email@email.com',
+            subject: 'Reset Password',
+            html: `${passwordToken}`,
+        })
+    })
+    return eventEmitter
+}
+
 // const sendVerificationEmail = async ({
 //     name,
 //     email,
@@ -30,4 +44,4 @@ const sendVerificationEmail = async (email: string) => {
 //     })
 // }
 
-export default { sendVerificationEmail }
+export default { sendVerificationEmail, sendResetPasswordEmail }

@@ -12,7 +12,25 @@ const login = Joi.object({
     password: Joi.string().required().min(6).max(24),
 })
 
+const verifyEmail = Joi.object({
+    verificationToken: Joi.string().required(),
+    email: Joi.string().email().required,
+})
+
+const forgotPassword = Joi.object({
+    email: Joi.string().email().required(),
+})
+
+const resetPassword = Joi.object({
+    email: Joi.string().email().required(),
+    token: Joi.string().required(),
+    newPassword: Joi.string().required(),
+})
+
 export default {
     register,
     login,
+    verifyEmail,
+    forgotPassword,
+    resetPassword,
 }

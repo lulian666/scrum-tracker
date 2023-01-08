@@ -123,4 +123,57 @@ async function verifyEmail({
     return user
 }
 
-export default { register, login, verifyEmail }
+async function logout(userId: string | undefined): Promise<void> {
+    if (userId) {
+        await Token.findOneAndDelete({ user: userId })
+    }
+}
+
+async function forgotPassword(email: string): Promise<void> {
+    const user = await User.findOne({ email })
+    if (user && user?.isVerified) {
+        const passwordToken = crypto.randomBytes(70).toString('hex')
+        const origin = process.env.ORIGIN
+        const eventEmitter = await emailEventEmitter.sendResetPasswordEmail()
+        eventEmitter.emit('signup', {email, passwordToken})
+
+        const tenMinutes = 1000 * 60 * 10
+        const passwordTokenExpirationDate = new Date(Date.now() + tenMinutes)
+
+        user.passwordToken = utils.hashString(passwordToken)
+        user.passwordTokenExpirationDate = passwordTokenExpirationDate
+        await user.save()
+    }
+}
+
+async function resetPassword({
+    token,
+    email,
+    newPassword,
+}: {
+    token: string
+    email: string
+    newPassword: string
+}): Promise<void> {
+    const user = await User.findOne({ email })
+    if (user) {
+        const currentDate = new Date()
+        if (
+            user.passwordToken === utils.hashString(token) &&
+            user.passwordTokenExpirationDate > currentDate
+        ) {
+            user.password = newPassword
+            user.passwordToken = ''
+            await user.save()
+        }
+    }
+}
+
+export default {
+    register,
+    login,
+    verifyEmail,
+    logout,
+    forgotPassword,
+    resetPassword,
+}

@@ -16,9 +16,21 @@ router.post(
     validationMiddleware(validation.login),
     authController.login
 )
-router.post('/verify-email', authController.verifyEmail)
-router.post('/reset-password', authController.resetPassword)
-router.post('/forgot-password', authController.forgotPassword)
+router.post(
+    '/verify-email',
+    validationMiddleware(validation.verifyEmail),
+    authController.verifyEmail
+)
+router.post(
+    '/reset-password',
+    validationMiddleware(validation.resetPassword),
+    authController.resetPassword
+)
+router.post(
+    '/forgot-password',
+    validationMiddleware(validation.forgotPassword),
+    authController.forgotPassword
+)
 router.delete(
     '/logout',
     authenticationMiddleware.authenticateUser,
