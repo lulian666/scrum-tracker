@@ -1,39 +1,74 @@
-import { StatusCodes } from "http-status-codes"
+import { StatusCodes } from 'http-status-codes'
 import CustomError from '@/errors/index'
 import { Router, Request, Response, NextFunction } from 'express'
-import AuthService from "@/services/auth.service"
+import AuthService from '@/services/auth.service'
 import crypto from 'crypto'
+import utils from '../utils'
+import authService from '@/services/auth.service'
 
-const register = async (req: Request, res: Response): Promise<Response | void> => {
+const register = async (
+    req: Request,
+    res: Response
+): Promise<Response | void> => {
     const { email, name, password } = req.body
     const verificationToken = crypto.randomBytes(40).toString('hex')
 
-    await AuthService.register({ email, name, password, role: 'user', verificationToken })
+    const user = await AuthService.register({
+        email,
+        name,
+        password,
+        role: 'user',
+        verificationToken,
+    })
 
-    res.status(StatusCodes.CREATED).json({ message: 'Please check your email for verification' })
+    res.status(StatusCodes.CREATED).json({
+        message: 'Please check your email for verification',
+        user,
+    })
 }
 
 const login = async (req: Request, res: Response): Promise<Response | void> => {
-    res.send('login')
+    const { email, password } = req.body
+    const userAgent = String(req.header('user-agent'))
+    const ip = req.ip
+    const { tokenUser, refreshToken } = await authService.login({
+        email,
+        password,
+        userAgent,
+        ip,
+    })
+    console.log(refreshToken, tokenUser)
+    utils.attachCookiesToResponse({ res, tokenUser, refreshToken })
+    res.status(StatusCodes.OK).json({ user: tokenUser })
 }
 
-const logout = async (req: Request, res: Response): Promise<Response | void> => {
+const logout = async (
+    req: Request,
+    res: Response
+): Promise<Response | void> => {
     res.send('logout')
 }
 
-const verifyEmail = async (req: Request, res: Response): Promise<Response | void> => {
+const verifyEmail = async (
+    req: Request,
+    res: Response
+): Promise<Response | void> => {
     res.send('verifyEmail')
 }
 
-const forgotPassword = async (req: Request, res: Response): Promise<Response | void> => {
+const forgotPassword = async (
+    req: Request,
+    res: Response
+): Promise<Response | void> => {
     res.send('forgotPassword')
 }
 
-const resetPassword = async (req: Request, res: Response): Promise<Response | void> => {
+const resetPassword = async (
+    req: Request,
+    res: Response
+): Promise<Response | void> => {
     res.send('resetPassword')
 }
-
-
 
 export default {
     register,

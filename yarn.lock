@@ -2261,6 +2261,13 @@
   resolved "https://npm.midway.run/@types%2fmime/-/mime-3.0.1.tgz#5f8f2bca0a5863cb69bc0b0acd88c96cb1d4ae10"
   integrity sha512-Y4XFY5VJAuw0FgAqPNd6NNoV44jbq9Bz2L7Rh/J6jLTiHBSBJa9fxqQIvkIld4GsoDOcCbvzOUAbLPsSKKg+uA==
 
+"@types/mockingoose@^2.13.0":
+  version "2.13.0"
+  resolved "https://npm.midway.run/@types%2fmockingoose/-/mockingoose-2.13.0.tgz#2805ecb34364e73dc9bbb29d7e76ca0b4907b428"
+  integrity sha512-1jWhd9DT0bom1cf+c+JG4AwvZtxc3WYyIwJ7xHbM2CGvx73q13mB1n47gyIb8jDgcyc3iMb6iau+8oWNXG8kAA==
+  dependencies:
+    mockingoose "*"
+
 "@types/morgan@^1.9.4":
   version "1.9.4"
   resolved "https://npm.midway.run/@types%2fmorgan/-/morgan-1.9.4.tgz#99965ad2bdc7c5cee28d8ce95cfa7300b19ea562"
@@ -5965,6 +5972,11 @@ mkdirp@^1.0.3:
   version "1.0.4"
   resolved "https://npm.midway.run/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha1-PrXtYmInVteaXw4qIh3+utdcL34=
+
+mockingoose@*, mockingoose@^2.16.2:
+  version "2.16.2"
+  resolved "https://npm.midway.run/mockingoose/-/mockingoose-2.16.2.tgz#0bd2fae32b3c460241666f8ff889ae68f0b830c0"
+  integrity sha512-6JokLoDoH4yzwnZYLwoynU2lNmbfW7Mcf0d8sF580XI2hqE9Cs5l22iFTjLB51cdxkOvRtjoL84LLVEGmgcwKQ==
 
 module-alias@^2.2.2:
   version "2.2.2"
