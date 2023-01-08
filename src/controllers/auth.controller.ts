@@ -53,7 +53,10 @@ const verifyEmail = async (
     req: Request,
     res: Response
 ): Promise<Response | void> => {
-    res.send('verifyEmail')
+    const { verificationToken, email } = req.body
+    const user = await authService.verifyEmail({ verificationToken, email })
+
+    res.status(StatusCodes.OK).json({ message: 'verified' })
 }
 
 const forgotPassword = async (

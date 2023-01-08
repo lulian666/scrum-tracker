@@ -95,4 +95,32 @@ async function login({
     return { tokenUser, refreshToken }
 }
 
-export default { register, login }
+async function verifyEmail({
+    verificationToken,
+    email,
+}: {
+    verificationToken: string
+    email: string
+}): Promise<userInterface> {
+    const user = await User.findOne({ email })
+    if (!user) {
+        throw new CustomError.UnauthenticatedError('Verification failed')
+    }
+
+    // if already verified
+    if (user.isVerified) {
+        return user
+    }
+
+    if (user.verificationToken !== verificationToken) {
+        throw new CustomError.UnauthenticatedError('Verification failed')
+    }
+
+    user.isVerified = true
+    user.verifiedDate = new Date(Date.now())
+    user.verificationToken = ''
+    await user.save()
+    return user
+}
+
+export default { register, login, verifyEmail }
