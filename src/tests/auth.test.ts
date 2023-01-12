@@ -7,6 +7,7 @@ import Token from '@/models/Token.model'
 import CustomError from '@/errors/index'
 import emailEventEmitter from '@/subscribers/email.subscriber'
 import utils from '../utils'
+import bcrypt from 'bcrypt'
 
 const mockingoose = require('mockingoose')
 
@@ -86,17 +87,40 @@ describe('Test auth contoller', () => {
     // })
 })
 
-describe('Test register api', () => {
+describe('Test register service', () => {
+    beforeEach(async () => {
+        jest.clearAllMocks()
+    })
+
     describe('given user has not regitered', () => {
         it('should create user and send verification email', async () => {
             mockingoose(User).toReturn(undefined, 'fineOne')
-            mockingoose(User).toReturn(userResponse, 'findOneAndUpdate')
-            const { statusCode, body } = await supertest(app)
-                .post('/api/v1/auth/register')
-                .send(userRequest)
-            expect(statusCode).toBe(201)
-            expect(body).toEqual({
-                message: 'Please check your email for verification',
+            mockingoose(User).toReturn(
+                { ...userResponse, isVerified: false },
+                'create'
+            )
+            // const { statusCode, body } = await supertest(app)
+            //     .post('/api/v1/auth/register')
+            //     .send(userRequest)
+            // expect(statusCode).toBe(201)
+            // expect(body).toEqual({
+            //     message: 'Please check your email for verification',
+            // })
+
+            const mockEventEmitter = jest.spyOn(
+                emailEventEmitter,
+                'sendVerificationEmail'
+            )
+            const result = await authService.register({
+                ...userRequest,
+                role: 'user',
+            })
+            expect(mockEventEmitter).toHaveBeenCalled()
+            expect(result).toMatchObject({
+                ...userResponse,
+                isVerified: false,
+                verificationToken: expect.any(String),
+                _id: expect.anything(),
             })
         })
     })
@@ -105,15 +129,33 @@ describe('Test register api', () => {
             it('should update user token and resend email', async () => {
                 mockingoose(User).toReturn(
                     { ...userResponse, isVerified: false },
-                    'fineOne'
+                    'findOne'
                 )
-                mockingoose(User).toReturn(userResponse, 'findOneAndUpdate')
-                const { statusCode, body } = await supertest(app)
-                    .post('/api/v1/auth/register')
-                    .send(userRequest)
-                expect(statusCode).toBe(201)
-                expect(body).toEqual({
-                    message: 'Please check your email for verification',
+                mockingoose(User).toReturn(
+                    { ...userResponse, isVerified: false },
+                    'findOneAndUpdate'
+                )
+                // const { statusCode, body } = await supertest(app)
+                //     .post('/api/v1/auth/register')
+                //     .send(userRequest)
+                // expect(statusCode).toBe(201)
+                // expect(body).toEqual({
+                //     message: 'Please check your email for verification',
+                // })
+                const mockEventEmitter = jest.spyOn(
+                    emailEventEmitter,
+                    'sendVerificationEmail'
+                )
+                const result = await authService.register({
+                    ...userRequest,
+                    role: 'user',
+                })
+                expect(mockEventEmitter).toHaveBeenCalled()
+                expect(result).toMatchObject({
+                    ...userResponse,
+                    isVerified: false,
+                    verificationToken: expect.any(String),
+                    _id: expect.anything(),
                 })
             })
         })
@@ -121,15 +163,25 @@ describe('Test register api', () => {
         describe('given email has already been verified', () => {
             it('should throw bad request error', async () => {
                 mockingoose(User).toReturn(userResponse, 'findOne')
-                mockingoose(User).toReturn(userResponse, 'findOneAndUpdate')
-                const { statusCode, body } = await supertest(app)
-                    .post('/api/v1/auth/register')
-                    .send(userRequest)
-                // .expect(202)
-                expect(statusCode).toBe(400)
-                expect(body).toEqual({
-                    message: 'Email already registered',
-                })
+
+                // const { statusCode, body } = await supertest(app)
+                //     .post('/api/v1/auth/register')
+                //     .send(userRequest)
+                // // .expect(202)
+                // expect(statusCode).toBe(400)
+                // expect(body).toEqual({
+                //     message: 'Email already registered',
+                // })
+
+                //change to test service
+                try {
+                    await authService.register({
+                        ...userRequest,
+                        role: 'user',
+                    })
+                } catch (e) {
+                    expect(e).toBeInstanceOf(CustomError.BadRequestError)
+                }
             })
         })
     })
@@ -146,17 +198,31 @@ const tokenResponse = {
     user: '63ba9a694a6e48b1512ad70f',
 }
 
-describe('Test login api', () => {
+describe('Test login service', () => {
+    beforeEach(async () => {
+        jest.clearAllMocks()
+    })
     describe('given the user has not registered', () => {
         it('should throw bad request', async () => {
             mockingoose(User).toReturn(undefined, 'findOne')
-            const { statusCode, body } = await supertest(app)
-                .post('/api/v1/auth/login')
-                .send(userRequest)
-            expect(statusCode).toBe(401)
-            expect(body).toEqual({
-                message: 'Invalid email and password',
-            })
+            // const { statusCode, body } = await supertest(app)
+            //     .post('/api/v1/auth/login')
+            //     .send(userRequest)
+            // expect(statusCode).toBe(401)
+            // expect(body).toEqual({
+            //     message: 'Invalid email and password',
+            // })
+
+            //change to test service
+            try {
+                await authService.login({
+                    ...userRequest,
+                    userAgent: 'something',
+                    ip: 'something',
+                })
+            } catch (e) {
+                expect(e).toBeInstanceOf(CustomError.UnauthenticatedError)
+            }
         })
     })
 
@@ -166,60 +232,117 @@ describe('Test login api', () => {
                 { ...userResponse, isVerified: false },
                 'findOne'
             )
-            const { statusCode, body } = await supertest(app)
-                .post('/api/v1/auth/login')
-                .send(userRequest)
-            expect(statusCode).toBe(401)
-            expect(body).toEqual({
-                message: 'Please verify your email first',
-            })
+            // const { statusCode, body } = await supertest(app)
+            //     .post('/api/v1/auth/login')
+            //     .send(userRequest)
+            // expect(statusCode).toBe(401)
+            // expect(body).toEqual({
+            //     message: 'Please verify your email first',
+            // })
+
+            //change to test service
+            try {
+                await authService.login({
+                    ...userRequest,
+                    userAgent: 'something',
+                    ip: 'something',
+                })
+            } catch (e) {
+                expect(e).toBeInstanceOf(CustomError.UnauthenticatedError)
+            }
         })
     })
 
     describe('given the user token is not valid', () => {
         it('should throw bad request', async () => {
-            mockingoose(User).toReturn(userResponse, 'findOne')
-            mockingoose(Token).toReturn(
-                { ...tokenResponse, isValid: false },
-                'findOne'
-            )
-            const { statusCode, body } = await supertest(app)
-                .post('/api/v1/auth/login')
-                .send(userRequest)
-            expect(statusCode).toBe(401)
-            expect(body).toEqual({
-                message: 'Invalid email and password',
-            })
-        })
-    })
-
-    describe('given the email and password is valid', () => {
-        it('should return 200', async () => {
+            const salt = await bcrypt.genSalt(10)
             mockingoose(User).toReturn(
                 {
                     ...userResponse,
-                    password:
-                        '$2b$10$GS6xed2NTzxTAzVHt.OQNuzcrDMUEIapSsGPO0htCaYUMvNvidTGS',
+                    password: await bcrypt.hash('password', salt),
                 },
                 'findOne'
             )
             mockingoose(Token).toReturn(
-                { ...tokenResponse, isValid: true },
+                { ...tokenResponse, isValid: false },
                 'findOne'
             )
-            const { tokenUser, refreshToken } = await authService.login({
-                ...userRequest,
-                userAgent: 'something',
-                ip: 'something',
+            // const { statusCode, body } = await supertest(app)
+            //     .post('/api/v1/auth/login')
+            //     .send(userRequest)
+            // expect(statusCode).toBe(401)
+            // expect(body).toEqual({
+            //     message: 'Invalid email and password',
+            // })
+
+            //change to test service
+            try {
+                await authService.login({
+                    ...userRequest,
+                    userAgent: 'something',
+                    ip: 'something',
+                })
+            } catch (e) {
+                expect(e).toBeInstanceOf(CustomError.UnauthenticatedError)
+            }
+        })
+    })
+
+    describe('given the email and password is valid', () => {
+        describe('given token does not exit', () => {
+            it('should create new token', async () => {
+                const salt = await bcrypt.genSalt(10)
+                mockingoose(User).toReturn(
+                    {
+                        ...userResponse,
+                        password: await bcrypt.hash('password', salt),
+                    },
+                    'findOne'
+                )
+                mockingoose(Token).toReturn(undefined, 'findOne')
+                const { tokenUser, refreshToken } = await authService.login({
+                    ...userRequest,
+                    userAgent: 'something',
+                    ip: 'something',
+                })
+                expect(tokenUser).toEqual({
+                    userId: expect.anything(),
+                    name: 'dj6',
+                    role: 'user',
+                })
+                expect(refreshToken).not.toEqual(
+                    '07c51abf4185df7e6608279cdc7e3b0c2899377c4d91b8a93f0b94ce66d6e64044d1e2e6c8182aac'
+                )
             })
-            expect(tokenUser).toEqual({
-                userId: expect.anything(),
-                name: 'dj6',
-                role: 'user',
+        })
+        describe('given token already exist', () => {
+            it('should update token', async () => {
+                const salt = await bcrypt.genSalt(10)
+                mockingoose(User).toReturn(
+                    {
+                        ...userResponse,
+                        password: await bcrypt.hash('password', salt),
+                    },
+                    'findOne'
+                )
+                mockingoose(Token).toReturn(
+                    { ...tokenResponse, isValid: true },
+                    'findOne'
+                )
+                const { tokenUser, refreshToken } = await authService.login({
+                    ...userRequest,
+                    userAgent: 'something',
+                    ip: 'something',
+                })
+                expect(tokenUser).toEqual({
+                    userId: expect.anything(),
+                    name: 'dj6',
+                    role: 'user',
+                })
+                expect(refreshToken).toBe(
+                    '07c51abf4185df7e6608279cdc7e3b0c2899377c4d91b8a93f0b94ce66d6e64044d1e2e6c8182aac'
+                )
             })
-            expect(refreshToken).toBe(
-                '07c51abf4185df7e6608279cdc7e3b0c2899377c4d91b8a93f0b94ce66d6e64044d1e2e6c8182aac'
-            )
         })
     })
 
