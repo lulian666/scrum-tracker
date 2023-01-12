@@ -10,17 +10,16 @@ async function register({
     email,
     password,
     role,
-    verificationToken,
 }: {
     name: string
     email: string
     password: string
     role: string
-    verificationToken: string
-}): Promise<userInterface | null> {
+}): Promise<userInterface> {
     // if already reisgtered yet not verified
     const emailAlreadyExist = await User.findOne({ email })
-    const eventEmitter = await emailEventEmitter.sendVerificationEmail(email)
+    const eventEmitter = emailEventEmitter.sendVerificationEmail()
+    const verificationToken = crypto.randomBytes(40).toString('hex')
 
     if (emailAlreadyExist && !emailAlreadyExist.isVerified) {
         // update user verificationToken and send verification email again
@@ -30,7 +29,7 @@ async function register({
             { new: true, runValidators: true }
         )
         eventEmitter.emit('signup', email)
-        return user
+        return user!
     }
 
     if (emailAlreadyExist && emailAlreadyExist.isVerified) {
@@ -63,14 +62,15 @@ async function login({
     if (!user) {
         throw new CustomError.UnauthenticatedError('Invalid email and password')
     }
-    const isPasswordCorrect = await user.comparePassword(password)
-    if (!isPasswordCorrect) {
-        throw new CustomError.UnauthenticatedError('Invalid email and password')
-    }
     if (!user.isVerified) {
         throw new CustomError.UnauthenticatedError(
             'Please verify your email first'
         )
+    }
+
+    const isPasswordCorrect = await user.comparePassword(password)
+    if (!isPasswordCorrect) {
+        throw new CustomError.UnauthenticatedError('Invalid email and password')
     }
 
     //create token
@@ -123,27 +123,29 @@ async function verifyEmail({
     return user
 }
 
-async function logout(userId: string | undefined): Promise<void> {
+async function logout(userId: string): Promise<void> {
     if (userId) {
         await Token.findOneAndDelete({ user: userId })
     }
+    return
 }
 
-async function forgotPassword(email: string): Promise<void> {
-    const user = await User.findOne({ email })
+async function forgotPassword(email: string): Promise<userInterface | null> {
+    let user = await User.findOne({ email })
     if (user && user?.isVerified) {
         const passwordToken = crypto.randomBytes(70).toString('hex')
         const origin = process.env.ORIGIN
         const eventEmitter = await emailEventEmitter.sendResetPasswordEmail()
-        eventEmitter.emit('signup', {email, passwordToken})
+        eventEmitter.emit('reset', { email, passwordToken })
 
         const tenMinutes = 1000 * 60 * 10
         const passwordTokenExpirationDate = new Date(Date.now() + tenMinutes)
 
         user.passwordToken = utils.hashString(passwordToken)
         user.passwordTokenExpirationDate = passwordTokenExpirationDate
-        await user.save()
+        user = await user.save()
     }
+    return user
 }
 
 async function resetPassword({
@@ -154,8 +156,8 @@ async function resetPassword({
     token: string
     email: string
     newPassword: string
-}): Promise<void> {
-    const user = await User.findOne({ email })
+}): Promise<userInterface | null> {
+    let user = await User.findOne({ email })
     if (user) {
         const currentDate = new Date()
         if (
@@ -164,9 +166,10 @@ async function resetPassword({
         ) {
             user.password = newPassword
             user.passwordToken = ''
-            await user.save()
+            user = await user.save()
         }
     }
+    return user
 }
 
 export default {

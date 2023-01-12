@@ -1,7 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
 import { Request, Response } from 'express'
-import AuthService from '@/services/auth.service'
-import crypto from 'crypto'
 import utils from '../utils'
 import authService from '@/services/auth.service'
 import { authInfoRequest } from './request.definition'
@@ -11,14 +9,12 @@ const register = async (
     res: Response
 ): Promise<Response | void> => {
     const { email, name, password } = req.body
-    const verificationToken = crypto.randomBytes(40).toString('hex')
 
-    const user = await AuthService.register({
+    const user = await authService.register({
         email,
         name,
         password,
         role: 'user',
-        verificationToken,
     })
 
     res.status(StatusCodes.CREATED).json({
@@ -45,7 +41,7 @@ const logout = async (
     req: authInfoRequest,
     res: Response
 ): Promise<Response | void> => {
-    await authService.logout(req.user?.userId)
+    await authService.logout(req.user!.userId)
     res.cookie('accessToken', 'logout', {
         httpOnly: true,
         expires: new Date(Date.now()),

@@ -12,14 +12,14 @@ import errorHandlerMiddleware from '@/middleware/errorHandler.middleware'
 
 import authRouter from '@/routes/auth.routes'
 
-
 const app: Application = express()
 app.set('trust proxy', 1)
-app.use(rateLimiter({
-    windowMs: 15 * 60 * 1000,
-    max: 60
-}))
-
+app.use(
+    rateLimiter({
+        windowMs: 15 * 60 * 1000,
+        max: 60,
+    })
+)
 
 app.use(morgan('dev'))
 app.use(helmet())
@@ -29,15 +29,13 @@ app.use(compression())
 app.use(cookieParser(process.env.JWT_SECRET))
 app.use(mongoSanitize())
 
-app.get("/", (req, res) => {
-    res.status(200).send("Hello World!");
-  });
+app.get('/', (req, res) => {
+    res.status(200).send('Hello World!')
+})
 
 app.use('/api/v1/auth', authRouter)
 
-
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)
-
 
 export default app

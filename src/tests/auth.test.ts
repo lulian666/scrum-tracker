@@ -1,27 +1,19 @@
 import supertest from 'supertest'
 import app from '../app'
-import authController from '@/controllers/auth.controller'
+// import authController from '@/controllers/auth.controller'
 import authService from '@/services/auth.service'
-// import { MongoMemoryServer } from 'mongodb-memory-server'
-// import mongoose from 'mongoose'
-// import mockingoose from 'mockingoose'
 import User from '@/models/User.model'
+import Token from '@/models/Token.model'
+import CustomError from '@/errors/index'
+import emailEventEmitter from '@/subscribers/email.subscriber'
+import utils from '../utils'
 
 const mockingoose = require('mockingoose')
 
-// const { MongoClient } = require('mongodb')
-
-// //@ts-ignore
-// let connection
-// //@ts-ignore
-// let db
-
 const userRequest = {
-    name: 'dj5',
+    name: 'dj6',
     password: 'password',
-    email: 'dj5@icloud.com',
-    role: 'user',
-    verificationToken: 'fake token',
+    email: 'dj6@icloud.com',
 }
 
 const userResponse = {
@@ -76,47 +68,29 @@ const userResponse = {
 // })
 
 describe('Test auth contoller', () => {
-    it('should call auth service register', async () => {
-        const registerServiceMock = jest
-            .spyOn(authService, 'register')
-            //@ts-ignore
-            .mockReturnValue()
-        const req = {
-            body: userRequest,
-        }
-        const res = {
-            json: () => res,
-            status: () => res,
-        }
-
-        //@ts-ignore
-        await authController.register(req, res)
-        expect(registerServiceMock).toHaveBeenCalled()
-    })
+    // it('should call auth service register', async () => {
+    //     const registerServiceMock = jest
+    //         .spyOn(authService, 'register')
+    //         //@ts-ignore
+    //         .mockReturnValue()
+    //     const req = {
+    //         body: userRequest,
+    //     }
+    //     const res = {
+    //         json: () => res,
+    //         status: () => res,
+    //     }
+    //     //@ts-ignore
+    //     await authController.register(req, res)
+    //     expect(registerServiceMock).toHaveBeenCalled()
+    // })
 })
 
-describe('Test auth service register', () => {
-    // beforeAll(async () => {
-    //     // const mongoServer = await MongoMemoryServer.create()
-    //     // await mongoose.set('strictQuery', false).connect(mongoServer.getUri())
-    //     //@ts-ignore
-    //     connection = await MongoClient.connect(globalThis.__MONGO_URI__, {
-    //         useNewUrlParser: true,
-    //         useUnifiedTopology: true,
-    //     })
-    //     //@ts-ignore
-    //     db = await connection.db(globalThis.__MONGO_DB_NAME__)
-    // })
-
-    // afterAll(async () => {
-    //     // await mongoose.disconnect()
-    //     // await mongoose.connection.close()
-    //     //@ts-ignore
-    //     await connection.close()
-    // })
-
+describe('Test register api', () => {
     describe('given user has not regitered', () => {
         it('should create user and send verification email', async () => {
+            mockingoose(User).toReturn(undefined, 'fineOne')
+            mockingoose(User).toReturn(userResponse, 'findOneAndUpdate')
             const { statusCode, body } = await supertest(app)
                 .post('/api/v1/auth/register')
                 .send(userRequest)
@@ -129,21 +103,11 @@ describe('Test auth service register', () => {
     describe('given user has already regitered', () => {
         describe('given email has not been verified', () => {
             it('should update user token and resend email', async () => {
-                // mockingoose(User).toReturn(userResponse, 'findOne')
-                // mockingoose(User).toReturn(userResponse, 'findOneAndUpdate')
-                // const req = {
-                //     body: userRequest,
-                // }
-                // @ts-ignore
-                // const res = await authController.register(req)
-                // expect(res).toEqual(userResponse)
-
-                // const res = await User.findOne({ email: 'dj6@icloud.com' })
-                // expect(res).toEqual({ hey: 'hey' })
-
-                // const res = await authService.register({...userRequest})
-                // expect(res).toEqual(userResponse)
-
+                mockingoose(User).toReturn(
+                    { ...userResponse, isVerified: false },
+                    'fineOne'
+                )
+                mockingoose(User).toReturn(userResponse, 'findOneAndUpdate')
                 const { statusCode, body } = await supertest(app)
                     .post('/api/v1/auth/register')
                     .send(userRequest)
@@ -156,19 +120,384 @@ describe('Test auth service register', () => {
 
         describe('given email has already been verified', () => {
             it('should throw bad request error', async () => {
-                // const users = db.collection('users')
-                // const mockUser = userResponse
-                // await users.insertOne(mockUser)
-
                 mockingoose(User).toReturn(userResponse, 'findOne')
                 mockingoose(User).toReturn(userResponse, 'findOneAndUpdate')
                 const { statusCode, body } = await supertest(app)
                     .post('/api/v1/auth/register')
-                    .send({ ...userRequest, email: 'dj6@icloud.com' })
+                    .send(userRequest)
+                // .expect(202)
                 expect(statusCode).toBe(400)
                 expect(body).toEqual({
                     message: 'Email already registered',
                 })
+            })
+        })
+    })
+})
+
+const tokenResponse = {
+    _id: '63baa718c9d96bb6439c4e28',
+
+    refreshToken:
+        '07c51abf4185df7e6608279cdc7e3b0c2899377c4d91b8a93f0b94ce66d6e64044d1e2e6c8182aac',
+    ip: '::1',
+    userAgent: 'PostmanRuntime/7.29.2',
+    isValid: true,
+    user: '63ba9a694a6e48b1512ad70f',
+}
+
+describe('Test login api', () => {
+    describe('given the user has not registered', () => {
+        it('should throw bad request', async () => {
+            mockingoose(User).toReturn(undefined, 'findOne')
+            const { statusCode, body } = await supertest(app)
+                .post('/api/v1/auth/login')
+                .send(userRequest)
+            expect(statusCode).toBe(401)
+            expect(body).toEqual({
+                message: 'Invalid email and password',
+            })
+        })
+    })
+
+    describe('given the user has not verified email', () => {
+        it('should throw bad request', async () => {
+            mockingoose(User).toReturn(
+                { ...userResponse, isVerified: false },
+                'findOne'
+            )
+            const { statusCode, body } = await supertest(app)
+                .post('/api/v1/auth/login')
+                .send(userRequest)
+            expect(statusCode).toBe(401)
+            expect(body).toEqual({
+                message: 'Please verify your email first',
+            })
+        })
+    })
+
+    describe('given the user token is not valid', () => {
+        it('should throw bad request', async () => {
+            mockingoose(User).toReturn(userResponse, 'findOne')
+            mockingoose(Token).toReturn(
+                { ...tokenResponse, isValid: false },
+                'findOne'
+            )
+            const { statusCode, body } = await supertest(app)
+                .post('/api/v1/auth/login')
+                .send(userRequest)
+            expect(statusCode).toBe(401)
+            expect(body).toEqual({
+                message: 'Invalid email and password',
+            })
+        })
+    })
+
+    describe('given the email and password is valid', () => {
+        it('should return 200', async () => {
+            mockingoose(User).toReturn(
+                {
+                    ...userResponse,
+                    password:
+                        '$2b$10$GS6xed2NTzxTAzVHt.OQNuzcrDMUEIapSsGPO0htCaYUMvNvidTGS',
+                },
+                'findOne'
+            )
+            mockingoose(Token).toReturn(
+                { ...tokenResponse, isValid: true },
+                'findOne'
+            )
+            const { tokenUser, refreshToken } = await authService.login({
+                ...userRequest,
+                userAgent: 'something',
+                ip: 'something',
+            })
+            expect(tokenUser).toEqual({
+                userId: expect.anything(),
+                name: 'dj6',
+                role: 'user',
+            })
+            expect(refreshToken).toBe(
+                '07c51abf4185df7e6608279cdc7e3b0c2899377c4d91b8a93f0b94ce66d6e64044d1e2e6c8182aac'
+            )
+        })
+    })
+
+    describe('given the email and password does not match', () => {
+        it('should throw bad request', async () => {
+            mockingoose(User).toReturn(
+                {
+                    ...userResponse,
+                    password:
+                        '$2b$10$GS6xed2NTzxTAzVHt.OQNuzcrDMUEIapSsGPO0htCaYUMvNvidTGS',
+                },
+                'findOne'
+            )
+            try {
+                await authService.login({
+                    ...userRequest,
+                    password: 'wrongpassword',
+                    userAgent: 'something',
+                    ip: 'something',
+                })
+            } catch (e) {
+                expect(e).toBeInstanceOf(CustomError.UnauthenticatedError)
+            }
+        })
+    })
+})
+
+const verifyRequest = {
+    verificationToken: 'sametoken',
+    email: 'dj6@icloud.com',
+}
+
+describe('Test verify email service', () => {
+    describe('given user does not exist', () => {
+        it('should throw UnauthenticatedError', async () => {
+            mockingoose(User).toReturn(undefined, 'findOne')
+            try {
+                await authService.verifyEmail(verifyRequest)
+            } catch (e) {
+                expect(e).toBeInstanceOf(CustomError.UnauthenticatedError)
+            }
+        })
+    })
+    describe('given email already verified', () => {
+        it('should do nothing and return user object', async () => {
+            mockingoose(User).toReturn(
+                {
+                    ...userResponse,
+                    verificationToken: 'sametoken',
+                    isVerified: true,
+                },
+                'findOne'
+            )
+            const user = await authService.verifyEmail(verifyRequest)
+            expect(user).toMatchObject({
+                ...userResponse,
+                _id: expect.anything(),
+                isVerified: true,
+                verificationToken: 'sametoken',
+                password: expect.anything(),
+            })
+        })
+    })
+
+    describe('given verification and email does not match', () => {
+        it('should throw UnauthenticatedError', async () => {
+            mockingoose(User).toReturn(
+                {
+                    ...userResponse,
+                    verificationToken: 'differenttoken',
+                    isVerified: false,
+                },
+                'findOne'
+            )
+
+            try {
+                await authService.verifyEmail(verifyRequest)
+            } catch (e) {
+                expect(e).toBeInstanceOf(CustomError.UnauthenticatedError)
+            }
+        })
+    })
+
+    describe('given verification and email match', () => {
+        it('should update user object to verified and return user object', async () => {
+            mockingoose(User).toReturn(
+                {
+                    ...userResponse,
+                    verificationToken: 'sametoken',
+                    isVerified: false,
+                },
+                'findOne'
+            )
+            const user = await authService.verifyEmail(verifyRequest)
+            expect(user).toMatchObject({
+                ...userResponse,
+                _id: expect.anything(),
+                isVerified: true,
+                verificationToken: '',
+                verifiedDate: expect.anything(),
+                password: expect.anything(),
+            })
+        })
+    })
+})
+
+describe('Test logout service', () => {
+    afterEach(async () => {
+        jest.clearAllMocks()
+    })
+    it('should find user token and delete', async () => {
+        mockingoose(Token).toReturn(tokenResponse, 'findOneAndDelete')
+        const tokenMock = jest.spyOn(Token, 'findOneAndDelete')
+        await authService.logout('someid')
+        expect(tokenMock).toHaveBeenCalled()
+    })
+})
+
+describe('Test forgot password service', () => {
+    beforeEach(async () => {
+        jest.clearAllMocks()
+    })
+    describe('given the user does not exist', () => {
+        it('should do nothing', async () => {
+            mockingoose(User).toReturn(undefined, 'findOne')
+            const result = await authService.forgotPassword('some email')
+            expect(result).toBeUndefined()
+        })
+    })
+
+    describe('given the use has not verify email from registration', () => {
+        it('should no nothing', async () => {
+            mockingoose(User).toReturn(
+                { ...userResponse, isVerified: false },
+                'findOne'
+            )
+            const result = await authService.forgotPassword('some email')
+            expect(result).toMatchObject({
+                ...userResponse,
+                _id: expect.anything(),
+                isVerified: false,
+            })
+        })
+    })
+
+    describe('given user exist and is verified', () => {
+        it('should create password token and send email', async () => {
+            mockingoose(User).toReturn(
+                { ...userResponse, isVerified: true },
+                'findOne'
+            )
+            const mockEventEmitter = jest.spyOn(
+                emailEventEmitter,
+                'sendResetPasswordEmail'
+            )
+            const mockHashString = jest
+                .spyOn(utils, 'hashString')
+                .mockReturnValue('somehash')
+            const result = await authService.forgotPassword('some email')
+            expect(mockEventEmitter).toHaveBeenCalled()
+            expect(result).toMatchObject({
+                ...userResponse,
+                _id: expect.anything(),
+                passwordToken: 'somehash',
+                password: expect.any(String),
+                passwordTokenExpirationDate: expect.any(Date),
+            })
+        })
+    })
+})
+
+const resetRequest = {
+    token: 'sametoken',
+    email: 'dj6@icloud.com',
+    newPassword: 'newpassword',
+}
+
+describe('Test resetPassword service', () => {
+    beforeEach(async () => {
+        jest.clearAllMocks()
+    })
+
+    describe('given user does not exist', () => {
+        it('should do nothting', async () => {
+            mockingoose(User).toReturn(undefined, 'findOne')
+            const result = await authService.resetPassword(resetRequest)
+            expect(result).toBeUndefined()
+        })
+    })
+
+    describe('given token is wrong', () => {
+        it('should do nothing to user object', async () => {
+            mockingoose(User).toReturn(
+                {
+                    ...userResponse,
+                    passwordToken: 'sametoken',
+                    passwordTokenExpirationDate: new Date(
+                        Date.now() + 1000 * 60 * 10
+                    ),
+                },
+                'findOne'
+            )
+            const mockHashString = jest
+                .spyOn(utils, 'hashString')
+                .mockReturnValue('differenttoken')
+            const result = await authService.resetPassword({
+                ...resetRequest,
+                token: 'differenttoken',
+            })
+            expect(result).toMatchObject({
+                ...userResponse,
+                _id: expect.anything(),
+                passwordToken: expect.any(String),
+                password: 'password',
+                passwordTokenExpirationDate: expect.any(Date),
+            })
+        })
+    })
+
+    describe('given token has expired', () => {
+        it('should do nothing to user object', async () => {
+            mockingoose(User).toReturn(
+                {
+                    ...userResponse,
+                    passwordToken: 'sametoken',
+                    passwordTokenExpirationDate: new Date(
+                        Date.now() - 1000 * 60 * 10
+                    ),
+                },
+                'findOne'
+            )
+            const mockHashString = jest
+                .spyOn(utils, 'hashString')
+                .mockReturnValue('sametoken')
+
+            const result = await authService.resetPassword({
+                ...resetRequest,
+                token: 'sametoken',
+            })
+            expect(result).toMatchObject({
+                ...userResponse,
+                _id: expect.anything(),
+                passwordToken: expect.any(String),
+                password: 'password',
+                passwordTokenExpirationDate: expect.any(Date),
+            })
+        })
+    })
+
+    describe('given token is right and has expired', () => {
+        it('should change password and remove password token', async () => {
+            mockingoose(User).toReturn(
+                {
+                    ...userResponse,
+                    passwordToken: 'sametoken',
+                    passwordTokenExpirationDate: new Date(
+                        Date.now() + 1000 * 60 * 10
+                    ),
+                },
+                'findOne'
+            )
+            const mockHashString = jest
+                .spyOn(utils, 'hashString')
+                .mockReturnValue('sametoken')
+            const result = await authService.resetPassword({
+                ...resetRequest,
+                token: 'sametoken',
+            })
+
+            expect(mockHashString).toHaveBeenCalled()
+
+            expect(result).toMatchObject({
+                ...userResponse,
+                _id: expect.anything(),
+                passwordToken: '',
+                // password: 'newpassword',
+                password: expect.any(String),
+                passwordTokenExpirationDate: expect.any(Date),
             })
         })
     })

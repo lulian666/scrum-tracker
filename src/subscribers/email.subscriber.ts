@@ -1,7 +1,7 @@
 import EventEmitter from 'events'
 import sendEmail from '@/utils/sendEmail.util'
 
-const sendVerificationEmail = async (email: string) => {
+const sendVerificationEmail = () => {
     const eventEmitter = new EventEmitter()
 
     eventEmitter.on('signup', async (email) => {
@@ -18,7 +18,7 @@ const sendVerificationEmail = async (email: string) => {
 const sendResetPasswordEmail = async () => {
     const eventEmitter = new EventEmitter()
 
-    eventEmitter.on('signup', async ({ email, passwordToken }) => {
+    eventEmitter.on('reset', async ({ email, passwordToken }) => {
         const verifyLink = ``
         return sendEmail({
             to: 'email@email.com',
