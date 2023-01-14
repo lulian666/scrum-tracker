@@ -1,7 +1,7 @@
 import { Schema, model, Document } from 'mongoose'
 import bcrypt from 'bcrypt'
 
-export interface userInterface extends Document {
+export interface UserInterface extends Document {
     name: string
     email: string
     password: string
@@ -14,44 +14,51 @@ export interface userInterface extends Document {
     comparePassword(password: string): Promise<Error | boolean>
 }
 
-const UserSchema = new Schema<userInterface>({
-    name: {
-        type: Schema.Types.String,
-        required: [true, 'Please provide name'],
+const UserSchema = new Schema<UserInterface>(
+    {
+        name: {
+            type: Schema.Types.String,
+            required: [true, 'Please provide name'],
+        },
+        email: {
+            type: Schema.Types.String,
+            unique: true,
+            required: [true, 'Please provide email'],
+        },
+        password: {
+            type: Schema.Types.String,
+            required: [true, 'Please provide password'],
+        },
+        role: {
+            type: Schema.Types.String,
+            enum: ['admin', 'user'],
+            default: 'user',
+        },
+        verificationToken: {
+            type: Schema.Types.String,
+        },
+        isVerified: {
+            type: Schema.Types.Boolean,
+            default: false,
+        },
+        verifiedDate: {
+            type: Schema.Types.Date,
+        },
+        passwordToken: {
+            type: Schema.Types.String,
+        },
+        passwordTokenExpirationDate: {
+            type: Schema.Types.Date,
+        },
     },
-    email: {
-        type: Schema.Types.String,
-        unique: true,
-        required: [true, 'Please provide email'],
-    },
-    password: {
-        type: Schema.Types.String,
-        required: [true, 'Please provide password'],
-    },
-    role: {
-        type: Schema.Types.String,
-        enum: ['admin', 'user'],
-        default: 'user',
-    },
-    verificationToken: {
-        type: Schema.Types.String,
-    },
-    isVerified: {
-        type: Schema.Types.Boolean,
-        default: false,
-    },
-    verifiedDate: {
-        type: Schema.Types.Date,
-    },
-    passwordToken: {
-        type: Schema.Types.String,
-    },
-    passwordTokenExpirationDate: {
-        type: Schema.Types.Date,
-    },
-})
+    {
+        timestamps: true,
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true },
+    }
+)
 
-UserSchema.pre<userInterface>('save', async function (next) {
+UserSchema.pre<UserInterface>('save', async function (next) {
     if (!this.isModified('password')) {
         return next()
     }
@@ -67,4 +74,4 @@ UserSchema.methods.comparePassword = async function (
     return await bcrypt.compare(candidatePassword, this.password)
 }
 
-export default model<userInterface>('User', UserSchema)
+export default model<UserInterface>('User', UserSchema)

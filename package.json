@@ -22,6 +22,7 @@
     "homepage": "https://github.com/lulian666/scrum-tracker#readme",
     "dependencies": {
         "bcrypt": "^5.1.0",
+        "cloudinary": "^1.33.0",
         "compression": "^1.7.4",
         "cookie-parser": "^1.4.6",
         "cors": "^2.8.5",
@@ -29,6 +30,7 @@
         "envalid": "^7.3.1",
         "express": "^4.18.2",
         "express-async-errors": "^3.1.1",
+        "express-fileupload": "^1.4.0",
         "express-mongo-sanitize": "^2.2.0",
         "express-rate-limit": "^6.7.0",
         "helmet": "^6.0.1",
@@ -54,6 +56,7 @@
         "@types/cookie-parser": "^1.4.3",
         "@types/cors": "^2.8.13",
         "@types/express": "^4.17.15",
+        "@types/express-fileupload": "^1.4.1",
         "@types/jest": "^29.2.5",
         "@types/jsonwebtoken": "^9.0.0",
         "@types/mockingoose": "^2.13.0",

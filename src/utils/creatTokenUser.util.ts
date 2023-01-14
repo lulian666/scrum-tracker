@@ -1,4 +1,4 @@
-import { userInterface } from '@/models/User.model'
+import { UserInterface } from '@/models/User.model'
 
 export interface tokenUserInterface {
     userId: string
@@ -6,7 +6,7 @@ export interface tokenUserInterface {
     role: string
 }
 
-const createTokenUser = (user: userInterface): tokenUserInterface => {
+const createTokenUser = (user: UserInterface): tokenUserInterface => {
     return { userId: user._id, name: user.name, role: user.role }
 }
 

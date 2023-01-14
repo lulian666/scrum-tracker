@@ -1,6 +1,6 @@
 import { Schema, model, Document } from 'mongoose'
 
-interface tokenInterface extends Document {
+interface TokenInterface extends Document {
     refreshToken: string
     ip: string
     userAgent: string
@@ -8,28 +8,32 @@ interface tokenInterface extends Document {
     user: object
 }
 
-const TokenSchema = new Schema<tokenInterface>({
-    refreshToken: {
-        type: Schema.Types.String,
-        required: true,
+const TokenSchema = new Schema<TokenInterface>(
+    {
+        refreshToken: {
+            type: Schema.Types.String,
+            required: true,
+        },
+        ip: {
+            type: Schema.Types.String,
+            required: true,
+        },
+        userAgent: {
+            type: Schema.Types.String,
+            required: true,
+        },
+        isValid: {
+            // user black list
+            type: Schema.Types.Boolean,
+            default: true,
+        },
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
+        },
     },
-    ip: {
-        type: Schema.Types.String,
-        required: true,
-    },
-    userAgent: {
-        type: Schema.Types.String,
-        required: true,
-    },
-    isValid: { // user black list
-        type: Schema.Types.Boolean,
-        default: true,
-    },
-    user: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-    },
-})
+    { timestamps: true }
+)
 
-export default model<tokenInterface>('Token', TokenSchema)
+export default model<TokenInterface>('Token', TokenSchema)

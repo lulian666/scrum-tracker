@@ -1,4 +1,4 @@
-import User, { userInterface } from '@/models/User.model'
+import User, { UserInterface } from '@/models/User.model'
 import Token from '@/models/Token.model'
 import CustomError from '@/errors/index'
 import emailEventEmitter from '@/subscribers/email.subscriber'
@@ -15,7 +15,7 @@ async function register({
     email: string
     password: string
     role: string
-}): Promise<userInterface> {
+}): Promise<UserInterface> {
     // if already reisgtered yet not verified
     const emailAlreadyExist = await User.findOne({ email })
     const eventEmitter = emailEventEmitter.sendVerificationEmail()
@@ -101,7 +101,7 @@ async function verifyEmail({
 }: {
     verificationToken: string
     email: string
-}): Promise<userInterface> {
+}): Promise<UserInterface> {
     const user = await User.findOne({ email })
     if (!user) {
         throw new CustomError.UnauthenticatedError('Verification failed')
@@ -130,7 +130,7 @@ async function logout(userId: string): Promise<void> {
     return
 }
 
-async function forgotPassword(email: string): Promise<userInterface | null> {
+async function forgotPassword(email: string): Promise<UserInterface | null> {
     let user = await User.findOne({ email })
     if (user && user?.isVerified) {
         const passwordToken = crypto.randomBytes(70).toString('hex')
@@ -156,7 +156,7 @@ async function resetPassword({
     token: string
     email: string
     newPassword: string
-}): Promise<userInterface | null> {
+}): Promise<UserInterface | null> {
     let user = await User.findOne({ email })
     if (user) {
         const currentDate = new Date()

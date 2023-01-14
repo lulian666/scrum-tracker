@@ -1,4 +1,4 @@
-import { Router, Request, Response, NextFunction } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import CustomError from '@/errors/index'
 import utils from '../utils'
 import { authInfoRequest } from '@/controllers/request.definition'
@@ -39,4 +39,12 @@ const authenticateUser = async (
     }
 }
 
-export default { authenticateUser }
+const authorizePermissions = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    //placeholder: should check user permission
+}
+
+export default { authenticateUser, authorizePermissions }
