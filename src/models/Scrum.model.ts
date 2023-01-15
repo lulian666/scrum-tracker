@@ -1,6 +1,6 @@
 import { Schema, model, Document } from 'mongoose'
 
-export interface ScrumInterface extends Document {
+export interface ScrumInterface {
     logo: string
     name: string
     description: string

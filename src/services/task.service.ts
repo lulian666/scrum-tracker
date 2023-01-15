@@ -10,7 +10,7 @@ async function create({
     status,
     priority,
     board,
-}: any) {
+}: TaskInterface) {
     const task = await Task.create({
         title,
         description,

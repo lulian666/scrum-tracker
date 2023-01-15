@@ -8,13 +8,7 @@ async function create({
     logo,
     members,
     manager,
-}: {
-    name: String
-    description: String
-    logo: String
-    members: String[]
-    manager: String
-}) {
+}: ScrumInterface) {
     const scrum = Scrum.create({ name, description, logo, members, manager })
     return scrum
 }

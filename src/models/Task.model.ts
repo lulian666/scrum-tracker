@@ -1,14 +1,14 @@
 import { Schema, model, Document } from 'mongoose'
 
-export interface TaskInterface extends Document {
+export interface TaskInterface {
     title: string
     description: string
-    createdBy: object
-    assignTo: object
+    createdBy: string
+    assignTo: string
     attachments: string[]
     status: string
     priority: string
-    board: object
+    board: string
 }
 
 const TaskSchema = new Schema<TaskInterface>(
@@ -21,11 +21,11 @@ const TaskSchema = new Schema<TaskInterface>(
             type: Schema.Types.String,
         },
         createdBy: {
-            type: Schema.Types.ObjectId,
+            type: Schema.Types.String,
             ref: 'User',
         },
         assignTo: {
-            type: Schema.Types.ObjectId,
+            type: Schema.Types.String,
             ref: 'User',
         },
         attachments: [
@@ -50,7 +50,7 @@ const TaskSchema = new Schema<TaskInterface>(
             default: 'normal',
         },
         board: {
-            type: Schema.Types.ObjectId,
+            type: Schema.Types.String,
             ref: 'Board',
             required: [true, 'Please provide board'],
         },
