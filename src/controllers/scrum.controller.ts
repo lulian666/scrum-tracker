@@ -1,7 +1,5 @@
 import { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import { UploadedFile } from 'express-fileupload'
-import uploadsService from '@/services/uploads.service'
 import { authInfoRequest } from './request.definition'
 import scrumService from '@/services/scrum.service'
 

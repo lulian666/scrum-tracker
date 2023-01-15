@@ -13,6 +13,7 @@ import errorHandlerMiddleware from '@/middleware/errorHandler.middleware'
 
 import authRouter from '@/routes/auth.routes'
 import scrumRouter from '@/routes/scrum.routes'
+import taskRouter from '@/routes/task.routes'
 
 const app: Application = express()
 app.set('trust proxy', 1)
@@ -38,6 +39,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/scrums', scrumRouter)
+app.use('/api/v1/tasks', taskRouter)
 
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)

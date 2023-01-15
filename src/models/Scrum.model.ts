@@ -4,8 +4,8 @@ export interface ScrumInterface extends Document {
     logo: string
     name: string
     description: string
-    members: object[]
-    manager: object
+    members: string[]
+    manager: string
 }
 
 const ScrumSchema = new Schema<ScrumInterface>(
@@ -17,7 +17,6 @@ const ScrumSchema = new Schema<ScrumInterface>(
         name: {
             type: Schema.Types.String,
             required: [true, 'Please provide name'],
-            unique: true,
         },
         description: {
             type: Schema.Types.String,
@@ -25,18 +24,22 @@ const ScrumSchema = new Schema<ScrumInterface>(
         },
         members: [
             {
-                type: Schema.Types.ObjectId,
+                type: Schema.Types.String,
                 ref: 'User',
             },
         ],
         manager: {
             // default creator
-            type: Schema.Types.ObjectId,
+            type: Schema.Types.String,
             ref: 'User',
             required: true,
         },
     },
-    { timestamps: true }
+    {
+        timestamps: true,
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true },
+    }
 )
 
 export default model<ScrumInterface>('Scrum', ScrumSchema)
