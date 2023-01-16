@@ -40,8 +40,8 @@ app.get('/', (req, res) => {
 
 app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/boards', boardRouter)
-app.use('/api/v1/boards/:boardId/cards', cardRouter)
-app.use('/api/v1/boards/:boardId/lists', listRouter)
+app.use('/api/v1/boards', listRouter)
+app.use('/api/v1/boards', cardRouter)
 
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)

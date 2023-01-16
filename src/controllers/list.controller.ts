@@ -7,8 +7,9 @@ const createList = async (
     req: authInfoRequest,
     res: Response
 ): Promise<void> => {
-    const { title, board } = req.body
-    const list = await listService.create({ title, board })
+    const { boardId } = req.params
+    const { title } = req.body
+    const list = await listService.create({ title, boardId, cards: [] })
 
     res.status(StatusCodes.CREATED).json({ list })
 }
@@ -26,19 +27,10 @@ const getBoardLists = async (
     req: authInfoRequest,
     res: Response
 ): Promise<void> => {
-    const id = req.params.id
-    const lists = await listService.getBoardLists(id)
+    const { boardId } = req.params
+    const lists = await listService.getBoardLists(boardId)
 
-    let listsForFE: Object[] = []
-    lists.forEach((list) => {
-        listsForFE.push({
-            id: list.id,
-            title: list.title,
-            boardId: Object(list.board)._id,
-        })
-    })
-
-    res.status(StatusCodes.OK).json({ lists: listsForFE })
+    res.status(StatusCodes.OK).json({ lists })
 }
 
 export default {

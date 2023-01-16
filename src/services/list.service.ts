@@ -2,8 +2,16 @@ import List, { ListInterface } from '@/models/List.model'
 import Board from '@/models/Board.model'
 import CustomError from '@/errors/index'
 
-async function create({ title, board }: ListInterface) {
-    const list = await List.create({ title, board })
+async function create({ title, boardId, cards }: ListInterface) {
+    let board = await Board.findOne({ _id: boardId })
+    if (!board) {
+        throw new CustomError.BadRequestError(
+            `Board with id ${boardId} does not exist`
+        )
+    }
+    const list = await List.create({ title, boardId, cards })
+    board.lists.push(String(list._id))
+    await board.save()
     return list
 }
 
@@ -19,10 +27,7 @@ async function getBoardLists(boardId: String) {
             `Board with id ${boardId} does not exist`
         )
     }
-    const lists = List.find().populate({
-        path: 'board',
-        match: { _id: boardId },
-    })
+    const lists = List.find({ boardId })
     return lists
 }
 

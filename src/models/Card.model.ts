@@ -9,7 +9,7 @@ export interface CardInterface {
     attachments: string[]
     createdBy: string
     assignTo: string
-    status: string
+    // status: string
     priority: string
 }
 
@@ -17,7 +17,7 @@ const CardSchema = new Schema<CardInterface>(
     {
         name: {
             type: Schema.Types.String,
-            required: [true, 'Please provide name'],
+            // required: [true, 'Please provide name'],
         },
         boardId: {
             type: Schema.Types.String,
@@ -50,14 +50,14 @@ const CardSchema = new Schema<CardInterface>(
                 type: Schema.Types.String,
             },
         ],
-        status: {
-            type: Schema.Types.String,
-            enum: {
-                values: ['open', 'resolved', 'invalid', 'wontfix'],
-                message: '{VALUE} is not supported',
-            },
-            default: 'open',
-        },
+        // status: {
+        //     type: Schema.Types.String,
+        //     enum: {
+        //         values: ['open', 'resolved', 'invalid', 'wontfix'],
+        //         message: '{VALUE} is not supported',
+        //     },
+        //     default: 'open',
+        // },
         priority: {
             type: Schema.Types.String,
             enum: {

@@ -13,7 +13,7 @@ router
     .route('/')
     .post(
         authenticationMiddleware.authenticateUser,
-        validationMiddleware(validation.create),
+        // validationMiddleware(validation.create),
         boardController.createBoard
     )
     .get(
@@ -25,6 +25,7 @@ router
 router
     .route('/uploadScrumLogo')
     .post(
+        authenticationMiddleware.authenticateUser,
         imageAttachedMiddleware.shouldAttachImage,
         uploadsController.uploadScrumLogo
     )
@@ -44,14 +45,12 @@ router
         boardController.updateBoard
     )
     .get(
-        // authenticationMiddleware.authenticateUser,
+        authenticationMiddleware.authenticateUser,
         boardController.getSingleBoard
     )
     .delete(
         authenticationMiddleware.authenticateUser,
         boardController.deleteBoard
     )
-
-// router.route('/:id/lists').get(boardController.getBoardlists)
 
 export default router

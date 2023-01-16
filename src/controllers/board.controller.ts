@@ -8,18 +8,18 @@ const createBoard = async (
     req: authInfoRequest,
     res: Response
 ): Promise<void> => {
-    // const { title, description, logo } = req.body
-    // const managerId = req.user!.userId
-    // const board = await boardService.create({
-    //     title,
-    //     description,
-    //     logo,
-    //     members: [managerId],
-    //     manager: managerId,
-    // })
+    const { title, description, icon, lists } = req.body
+    const managerId = req.user!.uuid
+    const board = await boardService.create({
+        title,
+        description,
+        logo: icon,
+        lists,
+        members: [],
+        manager: managerId,
+    })
 
-    // res.status(StatusCodes.CREATED).json({ board })
-    res.send('createBoard')
+    res.status(StatusCodes.CREATED).json({ board })
 }
 
 const getAllBoards = async (req: Request, res: Response): Promise<void> => {
@@ -52,25 +52,6 @@ const deleteBoard = async (req: Request, res: Response): Promise<void> => {
     res.send('deleteBoard')
 }
 
-const getBoardlists = async (
-    req: authInfoRequest,
-    res: Response
-): Promise<void> => {
-    const id = req.params.id
-    const lists = await boardService.getBoardLists(id)
-
-    const listsForFE: Object[] = []
-    lists.forEach((list) => {
-        listsForFE.push({
-            id: list.id,
-            title: list.title,
-            boardId: Object(list.board)._id,
-        })
-    })
-
-    res.status(StatusCodes.OK).json({ lists: listsForFE })
-}
-
 export default {
     createBoard,
     getAllBoards,
@@ -78,5 +59,4 @@ export default {
     updateBoard,
     getSingleBoard,
     deleteBoard,
-    getBoardlists,
 }

@@ -23,18 +23,21 @@ const loginin = async (req: Request, res: Response) => {
     const userAgent = String(req.header('user-agent'))
     const ip = req.ip
 
-    const { user, accessToken } = await authService.login({
+    const { safeUser, accessToken } = await authService.login({
         email,
         password,
         userAgent,
         ip,
     })
-
-    res.status(200).json({ access_token: accessToken, user })
+    res.status(200).json({ access_token: accessToken, user: safeUser })
 }
 
-const accessToken = async (req: authInfoRequest, res: Response) => {
-    res.status(StatusCodes.OK).json({ user: req.user })
+const loginWithAccessToken = async (req: authInfoRequest, res: Response) => {
+    const accessToken = await authService.loginWithAccessToken(req.user)
+    res.status(StatusCodes.OK).json({
+        user: req.user,
+        access_token: accessToken,
+    })
 }
 
 // const login = async (req: Request, res: Response): Promise<void> => {
@@ -97,7 +100,7 @@ export default {
     register,
     // login,
     loginin,
-    accessToken,
+    loginWithAccessToken,
     logout,
     verifyEmail,
     forgotPassword,

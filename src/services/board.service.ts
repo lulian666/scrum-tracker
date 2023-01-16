@@ -9,8 +9,16 @@ async function create({
     logo,
     members,
     manager,
+    lists,
 }: BoardInterface) {
-    const board = Board.create({ title, description, logo, members, manager })
+    const board = Board.create({
+        title,
+        description,
+        logo,
+        members,
+        manager,
+        lists,
+    })
     return board
 }
 
@@ -24,7 +32,14 @@ async function getUserBoards(userId: String) {
 }
 
 async function getSingleBoard(boardId: String) {
-    const board = Board.findOne({ _id: boardId })
+    const board = Board.findOne({ _id: boardId }).populate({
+        path: 'lists',
+        // match: { boardId: boardId },
+        // populate: {
+        //     path: 'cards',
+        // },
+    })
+
     if (!board) {
         throw new CustomError.NotFoundError(
             `Board with id ${boardId} does not exist`
@@ -32,19 +47,4 @@ async function getSingleBoard(boardId: String) {
     }
     return board
 }
-
-async function getBoardLists(boardId: String) {
-    const board = Board.findOne({ _id: boardId })
-    if (!board) {
-        throw new CustomError.NotFoundError(
-            `Board with id ${boardId} does not exist`
-        )
-    }
-    const lists = List.find().populate({
-        path: 'board',
-        match: { _id: boardId },
-    })
-    return lists
-}
-
-export default { create, getUserBoards, getSingleBoard, getBoardLists }
+export default { create, getUserBoards, getSingleBoard }

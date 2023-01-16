@@ -2,7 +2,7 @@ import User, { UserInterface } from '@/models/User.model'
 import Token from '@/models/Token.model'
 import CustomError from '@/errors/index'
 import emailEventEmitter from '@/subscribers/email.subscriber'
-import utils from '../utils'
+import utils from '@/utils/index'
 import crypto from 'crypto'
 
 async function register({
@@ -73,17 +73,15 @@ async function login({
     }
 
     // access token
-    const tokenUser = utils.createTokenUser(user)
+    const safeUser = utils.createSafeUser(user)
 
-    // custom user object for god damn front end
-    const customUser = {
-        ...tokenUser,
-        data: {
-            displayName: tokenUser.name,
-        },
-    }
+    const accessToken = utils.createJWT({ payload: { user: safeUser } })
+    return { safeUser, accessToken }
+}
+
+async function loginWithAccessToken(customUser: any) {
     const accessToken = utils.createJWT({ payload: { user: customUser } })
-    return { user: customUser, accessToken }
+    return accessToken
 }
 
 async function loginBefore({
@@ -113,7 +111,7 @@ async function loginBefore({
     }
 
     //create token
-    const tokenUser = utils.createTokenUser(user)
+    const tokenUser = utils.createSafeUser(user)
     let refreshToken = ''
     const existingToken = await Token.findOne({ user: user._id })
     if (existingToken) {
@@ -218,4 +216,5 @@ export default {
     logout,
     forgotPassword,
     resetPassword,
+    loginWithAccessToken,
 }

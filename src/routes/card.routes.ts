@@ -6,19 +6,22 @@ import validation from '@/models/Card.validation'
 
 const router: Router = express.Router()
 
+router.route('/:boardId/lists/:listId/cards').post(
+    authenticationMiddleware.authenticateUser,
+    // validationMiddleware(validation.create),
+    cardController.createCard
+)
 router
-    .route('/')
-    .post(
+    .route('/:boardId/cards')
+    .get(
         authenticationMiddleware.authenticateUser,
-        // validationMiddleware(validation.create),
-        cardController.createCard
+        cardController.getBoardCards
     )
-    .get(cardController.getBoardCards)
 router
-    .route('/myCards')
+    .route('/:boardId/cards/myCards')
     .get(authenticationMiddleware.authenticateUser, cardController.getUserCards)
 router
-    .route('/:cardId')
+    .route('/:boardId/cards/:cardId')
     .get(
         authenticationMiddleware.authenticateUser,
         cardController.getSingleCard

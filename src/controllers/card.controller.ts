@@ -7,28 +7,22 @@ const createCard = async (
     req: authInfoRequest,
     res: Response
 ): Promise<void> => {
-    // const {
-    //     title,
-    //     description,
-    //     assignTo,
-    //     attachments,
-    //     priority,
-    //     board,
-    //     status,
-    // } = req.body
-    // const { userId } = req.user!
-    // const card = await cardService.create({
-    //     title,
-    //     description,
-    //     createdBy: userId,
-    //     assignTo,
-    //     attachments,
-    //     status: status || 'open',
-    //     priority: priority || 'normal',
-    //     board,
-    // })
-    // res.status(StatusCodes.CREATED).send({ card })
-    res.send('createCard')
+    console.log('req.body', req.body)
+    const { boardId, listId } = req.params
+    const { title, name, description } = req.body
+    const { userId } = req.user!
+    const card = await cardService.create({
+        title,
+        name,
+        description,
+        boardId,
+        listId,
+        createdBy: userId,
+        assignTo: userId,
+        attachments: [],
+        priority: 'normal',
+    })
+    res.status(StatusCodes.CREATED).send({ card })
 }
 
 const updatedCard = async (

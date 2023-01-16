@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken'
-import { tokenUserInterface } from '@/utils/creatTokenUser.util'
+import { SafeUserInterface } from '@/utils/creatTokenUser.util'
 import { Response } from 'express'
 
 interface refreshTokenUserInterface {
-    user: tokenUserInterface
+    user: SafeUserInterface
     refreshToken: string
 }
 
@@ -27,7 +27,7 @@ const attachCookiesToResponse = ({
     refreshToken,
 }: {
     res: Response
-    tokenUser: tokenUserInterface
+    tokenUser: SafeUserInterface
     refreshToken: string
 }): void => {
     const accessTokenJWT = createJWT({ payload: { user: tokenUser } })

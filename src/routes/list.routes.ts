@@ -5,13 +5,15 @@ import listController from '@/controllers/list.controller'
 const router: Router = express.Router()
 
 router
-    .route('/')
-    .post(
-        // authenticationMiddleware.authenticateUser,
-        listController.createList
+    .route('/:boardId/lists')
+    .post(authenticationMiddleware.authenticateUser, listController.createList)
+    .get(
+        authenticationMiddleware.authenticateUser,
+        listController.getBoardLists
     )
-    .get(listController.getBoardLists)
 
-router.route('/:listId').get(listController.getList)
+router
+    .route('/:boardId/lists/:listId')
+    .get(authenticationMiddleware.authenticateUser, listController.getList)
 
 export default router

@@ -1,28 +1,39 @@
 import Card, { CardInterface } from '@/models/Card.model'
-import CustomError from '@/errors/custom.error'
+import List from '@/models/List.model'
+import CustomError from '@/errors/index'
 
-// async function create({
-//     title,
-//     description,
-//     createdBy,
-//     assignTo,
-//     attachments,
-//     status,
-//     priority,
-//     board,
-// }: CardInterface) {
-//     const card = await Card.create({
-//         title,
-//         description,
-//         createdBy,
-//         assignTo,
-//         attachments,
-//         status,
-//         priority,
-//         board,
-//     })
-//     return card
-// }
+async function create({
+    title,
+    name,
+    description,
+    boardId,
+    listId,
+    createdBy,
+    assignTo,
+    attachments = [],
+    priority = 'normal',
+}: CardInterface) {
+    let list = await List.findOne({ _id: listId })
+    if (!list) {
+        throw new CustomError.NotFoundError(
+            `List with id ${listId} does not exist`
+        )
+    }
+    const card = await Card.create({
+        title,
+        name,
+        description,
+        boardId,
+        listId,
+        createdBy,
+        assignTo,
+        attachments,
+        priority,
+    })
+    list.cards.push(String(card._id))
+    await list.save()
+    return card
+}
 
 async function getSingleCard(cardId: String) {
     const card = Card.findOne({ _id: cardId })
@@ -35,7 +46,7 @@ async function getBoardCards(boardId: String) {
 }
 
 export default {
-    // create,
+    create,
     getSingleCard,
     getBoardCards,
 }

@@ -11,6 +11,7 @@ export interface UserInterface extends Document {
     verifiedDate: Date
     passwordToken: string
     passwordTokenExpirationDate: Date
+    from: string
     comparePassword(password: string): Promise<Error | boolean>
 }
 
@@ -50,6 +51,10 @@ const UserSchema = new Schema<UserInterface>(
         passwordTokenExpirationDate: {
             type: Schema.Types.Date,
         },
+        from: {
+            type: Schema.Types.String,
+            default: 'from',
+        },
     },
     {
         timestamps: true,
@@ -57,6 +62,17 @@ const UserSchema = new Schema<UserInterface>(
         toObject: { virtuals: true },
     }
 )
+
+UserSchema.virtual('data').get(function () {
+    return {
+        displayName: this.name,
+        email: this.email,
+    }
+})
+
+UserSchema.virtual('uuid').get(function () {
+    return this._id
+})
 
 UserSchema.pre<UserInterface>('save', async function (next) {
     if (!this.isModified('password')) {

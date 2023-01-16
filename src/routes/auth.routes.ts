@@ -21,7 +21,7 @@ router.post(
 router.get(
     '/access-token',
     authenticationMiddleware.authenticateUser,
-    authController.accessToken
+    authController.loginWithAccessToken
 )
 
 // router.post(

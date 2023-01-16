@@ -55,6 +55,7 @@ const authenticateUser = async (
         const payload = utils.isTokenValid(token)
         // attach the user to the job routes
         req.user = (<any>payload).user
+        console.log('req.user', req.user)
         next()
     } catch (error) {
         throw new CustomError.UnauthenticatedError('Authentication invalid')

@@ -1,4 +1,4 @@
-import createTokenUser from '@/utils/creatTokenUser.util'
+import createSafeUser from '@/utils/creatTokenUser.util'
 import {
     createJWT,
     isTokenValid,
@@ -7,7 +7,7 @@ import {
 import hashString from './createHash.util'
 
 export default {
-    createTokenUser,
+    createSafeUser,
     createJWT,
     isTokenValid,
     attachCookiesToResponse,

@@ -2,7 +2,8 @@ import { Schema, model, Document } from 'mongoose'
 
 export interface ListInterface {
     title: string
-    board: string
+    boardId: string
+    cards: string[]
 }
 
 const ListSchema = new Schema<ListInterface>(
@@ -11,10 +12,17 @@ const ListSchema = new Schema<ListInterface>(
             type: Schema.Types.String,
             required: [true, 'Please provide title'],
         },
-        board: {
+        boardId: {
             type: Schema.Types.String,
-            ref: 'Scrum',
+            ref: 'Board',
+            required: true,
         },
+        cards: [
+            {
+                type: Schema.Types.String,
+                ref: 'Card',
+            },
+        ],
     },
     {
         timestamps: true,
