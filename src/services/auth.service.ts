@@ -57,6 +57,45 @@ async function login({
     password: string
     userAgent: string
     ip: string
+}) {
+    const user = await User.findOne({ email })
+    if (!user) {
+        throw new CustomError.UnauthenticatedError('Invalid email and password')
+    }
+    if (!user.isVerified) {
+        throw new CustomError.UnauthenticatedError(
+            'Please verify your email first'
+        )
+    }
+    const isPasswordCorrect = await user.comparePassword(password)
+    if (!isPasswordCorrect) {
+        throw new CustomError.UnauthenticatedError('Invalid email and password')
+    }
+
+    // access token
+    const tokenUser = utils.createTokenUser(user)
+
+    // custom user object for god damn front end
+    const customUser = {
+        ...tokenUser,
+        data: {
+            displayName: tokenUser.name,
+        },
+    }
+    const accessToken = utils.createJWT({ payload: { user: customUser } })
+    return { user: customUser, accessToken }
+}
+
+async function loginBefore({
+    email,
+    password,
+    userAgent,
+    ip,
+}: {
+    email: string
+    password: string
+    userAgent: string
+    ip: string
 }): Promise<{ tokenUser: any; refreshToken: string }> {
     const user = await User.findOne({ email })
     if (!user) {

@@ -1,8 +1,8 @@
 import express, { Router } from 'express'
-import taskController from '@/controllers/task.controller'
+import cardController from '@/controllers/card.controller'
 import authenticationMiddleware from '@/middleware/authentication.middleware'
 import validationMiddleware from '@/middleware/validation.middleware'
-import validation from '@/models/Task.validation'
+import validation from '@/models/Card.validation'
 
 const router: Router = express.Router()
 
@@ -10,25 +10,26 @@ router
     .route('/')
     .post(
         authenticationMiddleware.authenticateUser,
-        validationMiddleware(validation.create),
-        taskController.createTask
+        // validationMiddleware(validation.create),
+        cardController.createCard
     )
+    .get(cardController.getBoardCards)
 router
-    .route('/myTasks')
-    .get(authenticationMiddleware.authenticateUser, taskController.getUserTasks)
+    .route('/myCards')
+    .get(authenticationMiddleware.authenticateUser, cardController.getUserCards)
 router
-    .route('/:id')
+    .route('/:cardId')
     .get(
         authenticationMiddleware.authenticateUser,
-        taskController.getSingleTask
+        cardController.getSingleCard
     )
     .patch(
         authenticationMiddleware.authenticateUser,
-        taskController.updatedTask
+        cardController.updatedCard
     )
     .delete(
         authenticationMiddleware.authenticateUser,
-        taskController.deleteTask
+        cardController.deleteCard
     )
 
 export default router

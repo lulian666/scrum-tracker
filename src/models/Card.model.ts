@@ -1,24 +1,41 @@
 import { Schema, model, Document } from 'mongoose'
 
-export interface TaskInterface {
+export interface CardInterface {
+    name: string
+    boardId: string
+    listId: string
     title: string
     description: string
+    attachments: string[]
     createdBy: string
     assignTo: string
-    attachments: string[]
     status: string
     priority: string
-    board: string
 }
 
-const TaskSchema = new Schema<TaskInterface>(
+const CardSchema = new Schema<CardInterface>(
     {
+        name: {
+            type: Schema.Types.String,
+            required: [true, 'Please provide name'],
+        },
+        boardId: {
+            type: Schema.Types.String,
+            ref: 'Board',
+            required: [true, 'Please provide board id'],
+        },
+        listId: {
+            type: Schema.Types.String,
+            ref: 'listId',
+            required: [true, 'Please provide list id'],
+        },
         title: {
             type: Schema.Types.String,
             required: [true, 'Please provide title'],
         },
         description: {
             type: Schema.Types.String,
+            maxlength: 400,
         },
         createdBy: {
             type: Schema.Types.String,
@@ -49,17 +66,17 @@ const TaskSchema = new Schema<TaskInterface>(
             },
             default: 'normal',
         },
-        board: {
-            type: Schema.Types.String,
-            ref: 'Board',
-            required: [true, 'Please provide board'],
-        },
+        // board: {
+        //     type: Schema.Types.String,
+        //     ref: 'Board',
+        //     required: [true, 'Please provide board'],
+        // },
     },
     {
         timestamps: true,
-        // toJSON: { virtuals: true },
-        // toObject: { virtuals: true },
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true },
     }
 )
 
-export default model<TaskInterface>('Task', TaskSchema)
+export default model<CardInterface>('Card', CardSchema)

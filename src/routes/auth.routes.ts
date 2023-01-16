@@ -11,11 +11,24 @@ router.post(
     validationMiddleware(validation.register),
     authController.register
 )
+
 router.post(
-    '/login',
+    '/loginin',
     validationMiddleware(validation.login),
-    authController.login
+    authController.loginin
 )
+
+router.get(
+    '/access-token',
+    authenticationMiddleware.authenticateUser,
+    authController.accessToken
+)
+
+// router.post(
+//     '/login',
+//     validationMiddleware(validation.login),
+//     authController.login
+// )
 router.post(
     '/verify-email',
     validationMiddleware(validation.verifyEmail),

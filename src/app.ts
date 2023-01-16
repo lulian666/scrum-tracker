@@ -12,17 +12,18 @@ import notFoundMiddleware from '@/middleware/notFound.middleware'
 import errorHandlerMiddleware from '@/middleware/errorHandler.middleware'
 
 import authRouter from '@/routes/auth.routes'
-import scrumRouter from '@/routes/scrum.routes'
-import taskRouter from '@/routes/task.routes'
+import boardRouter from '@/routes/board.routes'
+import cardRouter from '@/routes/card.routes'
+import listRouter from '@/routes/list.routes'
 
 const app: Application = express()
 app.set('trust proxy', 1)
-app.use(
-    rateLimiter({
-        windowMs: 15 * 60 * 1000,
-        max: 60,
-    })
-)
+// app.use(
+//     rateLimiter({
+//         windowMs: 15 * 60 * 1000,
+//         max: 60,
+//     })
+// )
 
 app.use(morgan('dev'))
 app.use(helmet())
@@ -38,8 +39,9 @@ app.get('/', (req, res) => {
 })
 
 app.use('/api/v1/auth', authRouter)
-app.use('/api/v1/scrums', scrumRouter)
-app.use('/api/v1/tasks', taskRouter)
+app.use('/api/v1/boards', boardRouter)
+app.use('/api/v1/boards/:boardId/cards', cardRouter)
+app.use('/api/v1/boards/:boardId/lists', listRouter)
 
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)

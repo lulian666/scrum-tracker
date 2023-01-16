@@ -7,8 +7,14 @@ interface refreshTokenUserInterface {
     refreshToken: string
 }
 
-const createJWT = ({ payload }: any): string => {
+const createJWTBefore = ({ payload }: any): string => {
     return jwt.sign(payload, String(process.env.JWT_SECRET))
+}
+
+const createJWT = ({ payload }: any): string => {
+    return jwt.sign(payload, String(process.env.JWT_SECRET), {
+        expiresIn: process.env.JWT_LIFETIME,
+    })
 }
 
 const isTokenValid = (token: string) => {
