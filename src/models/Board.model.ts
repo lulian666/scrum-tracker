@@ -1,26 +1,61 @@
 import { Schema, model, Document } from 'mongoose'
 
-export interface BoardInterface extends Document {
-    name: string
-    scrum: object
+export interface BoardInterface {
+    icon: string
+    title: string
+    description: string
+    members: string[]
+    manager: string
+    lists: string[]
 }
 
 const BoardSchema = new Schema<BoardInterface>(
     {
-        name: {
+        icon: {
             type: Schema.Types.String,
-            required: [true, 'Please provide name'],
+            required: [true, 'Please provide icon'],
         },
-        scrum: {
-            type: Schema.Types.ObjectId,
-            ref: 'Scrum',
+        title: {
+            type: Schema.Types.String,
+            required: [true, 'Please provide title'],
         },
+        description: {
+            type: Schema.Types.String,
+            default: 'This is a board description',
+        },
+        members: [
+            {
+                type: Schema.Types.String,
+                ref: 'User',
+            },
+        ],
+        manager: {
+            // default creator
+            type: Schema.Types.String,
+            ref: 'User',
+            required: true,
+        },
+        lists: [
+            {
+                type: Schema.Types.String,
+                ref: 'List',
+            },
+        ],
     },
     {
         timestamps: true,
-        toJSON: { virtuals: true },
         toObject: { virtuals: true },
     }
 )
+
+BoardSchema.set('toJSON', {
+    virtuals: true,
+    versionKey: false,
+    transform: function (doc, ret) {
+        ret.id = ret._id
+        delete ret._id
+        delete ret.__v
+    },
+})
 
 export default model<BoardInterface>('Board', BoardSchema)

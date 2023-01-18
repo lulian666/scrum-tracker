@@ -2,7 +2,7 @@ import User, { UserInterface } from '@/models/User.model'
 import Token from '@/models/Token.model'
 import CustomError from '@/errors/index'
 import emailEventEmitter from '@/subscribers/email.subscriber'
-import utils from '../utils'
+import utils from '@/utils/index'
 import crypto from 'crypto'
 
 async function register({
@@ -57,6 +57,43 @@ async function login({
     password: string
     userAgent: string
     ip: string
+}) {
+    const user = await User.findOne({ email })
+    if (!user) {
+        throw new CustomError.UnauthenticatedError('Invalid email and password')
+    }
+    if (!user.isVerified) {
+        throw new CustomError.UnauthenticatedError(
+            'Please verify your email first'
+        )
+    }
+    const isPasswordCorrect = await user.comparePassword(password)
+    if (!isPasswordCorrect) {
+        throw new CustomError.UnauthenticatedError('Invalid email and password')
+    }
+
+    // access token
+    const safeUser = utils.createSafeUser(user)
+
+    const accessToken = utils.createJWT({ payload: { user: safeUser } })
+    return { safeUser, accessToken }
+}
+
+async function loginWithAccessToken(customUser: any) {
+    const accessToken = utils.createJWT({ payload: { user: customUser } })
+    return accessToken
+}
+
+async function loginBefore({
+    email,
+    password,
+    userAgent,
+    ip,
+}: {
+    email: string
+    password: string
+    userAgent: string
+    ip: string
 }): Promise<{ tokenUser: any; refreshToken: string }> {
     const user = await User.findOne({ email })
     if (!user) {
@@ -74,7 +111,7 @@ async function login({
     }
 
     //create token
-    const tokenUser = utils.createTokenUser(user)
+    const tokenUser = utils.createSafeUser(user)
     let refreshToken = ''
     const existingToken = await Token.findOne({ user: user._id })
     if (existingToken) {
@@ -179,4 +216,5 @@ export default {
     logout,
     forgotPassword,
     resetPassword,
+    loginWithAccessToken,
 }

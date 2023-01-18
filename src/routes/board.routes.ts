@@ -1,55 +1,63 @@
 import express, { Router } from 'express'
 import validationMiddleware from '@/middleware/validation.middleware'
 import authenticationMiddleware from '@/middleware/authentication.middleware'
-import validation from '@/models/Scrum.validation'
-import scrumController from '@/controllers/scrum.controller'
+import validation from '@/models/Board.validation'
+import boardController from '@/controllers/board.controller'
 import imageAttachedMiddleware from '@/middleware/imageAttached.middleware'
 import uploadsController from '@/controllers/uploads.controller'
 
 const router: Router = express.Router()
 
-// get all scrums(admin)
+// get all boards(admin)
 router
     .route('/')
     .post(
         authenticationMiddleware.authenticateUser,
-        validationMiddleware(validation.create),
-        scrumController.createScrum
+        // validationMiddleware(validation.create),
+        boardController.createBoard
     )
     .get(
         authenticationMiddleware.authenticateUser,
         authenticationMiddleware.authorizePermissions,
-        scrumController.getAllScrums
+        boardController.getAllBoards
     )
 
 router
     .route('/uploadScrumLogo')
     .post(
+        authenticationMiddleware.authenticateUser,
         imageAttachedMiddleware.shouldAttachImage,
         uploadsController.uploadScrumLogo
     )
 
-// get user's scrums
+// get user's boards
 router
-    .route('/myScrums')
+    .route('/myBoards')
     .get(
         authenticationMiddleware.authenticateUser,
-        scrumController.getUserScrums
+        boardController.getUserBoards
     )
 
 router
-    .route('/:id')
+    .route('/:boardId')
     .patch(
         authenticationMiddleware.authenticateUser,
-        scrumController.updateScrum
+        boardController.updateBoard
     )
     .get(
         authenticationMiddleware.authenticateUser,
-        scrumController.getSingleScrum
+        boardController.getSingleBoard
     )
     .delete(
         authenticationMiddleware.authenticateUser,
-        scrumController.deleteScrum
+        boardController.deleteBoard
+    )
+
+router
+    .route('/:boardId/members')
+    .get(
+        authenticationMiddleware.authenticateUser,
+        boardController.getBoardMembers
     )
 
 export default router

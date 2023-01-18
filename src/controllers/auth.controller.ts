@@ -1,6 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
 import { Request, Response } from 'express'
-import utils from '../utils'
 import authService from '@/services/auth.service'
 import { authInfoRequest } from './request.definition'
 
@@ -19,20 +18,42 @@ const register = async (req: Request, res: Response): Promise<void> => {
     })
 }
 
-const login = async (req: Request, res: Response): Promise<void> => {
+const loginin = async (req: Request, res: Response) => {
     const { email, password } = req.body
     const userAgent = String(req.header('user-agent'))
     const ip = req.ip
-    const { tokenUser, refreshToken } = await authService.login({
+
+    const { safeUser, accessToken } = await authService.login({
         email,
         password,
         userAgent,
         ip,
     })
-
-    utils.attachCookiesToResponse({ res, tokenUser, refreshToken })
-    res.status(StatusCodes.OK).json({ user: tokenUser })
+    res.status(200).json({ access_token: accessToken, user: safeUser })
 }
+
+const loginWithAccessToken = async (req: authInfoRequest, res: Response) => {
+    const accessToken = await authService.loginWithAccessToken(req.user)
+    res.status(StatusCodes.OK).json({
+        user: req.user,
+        access_token: accessToken,
+    })
+}
+
+// const login = async (req: Request, res: Response): Promise<void> => {
+//     const { email, password } = req.body
+//     const userAgent = String(req.header('user-agent'))
+//     const ip = req.ip
+//     const { tokenUser, refreshToken } = await authService.login({
+//         email,
+//         password,
+//         userAgent,
+//         ip,
+//     })
+
+//     utils.attachCookiesToResponse({ res, tokenUser, refreshToken })
+//     res.status(StatusCodes.OK).json({ user: tokenUser })
+// }
 
 const logout = async (req: authInfoRequest, res: Response): Promise<void> => {
     await authService.logout(req.user!.userId)
@@ -77,7 +98,9 @@ const resetPassword = async (
 
 export default {
     register,
-    login,
+    // login,
+    loginin,
+    loginWithAccessToken,
     logout,
     verifyEmail,
     forgotPassword,

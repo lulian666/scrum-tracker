@@ -1,24 +1,32 @@
 import { Schema, model, Document } from 'mongoose'
 
-export interface TaskInterface {
+export interface CardInterface {
+    name: string
+    // don't think we need this in mongo
+    // boardId: string
+    // listId: string
     title: string
     description: string
+    attachments: string[]
     createdBy: string
     assignTo: string
-    attachments: string[]
-    status: string
+    // status: string
     priority: string
-    board: string
 }
 
-const TaskSchema = new Schema<TaskInterface>(
+const CardSchema = new Schema<CardInterface>(
     {
+        name: {
+            type: Schema.Types.String,
+            // required: [true, 'Please provide name'],
+        },
         title: {
             type: Schema.Types.String,
             required: [true, 'Please provide title'],
         },
         description: {
             type: Schema.Types.String,
+            maxlength: 400,
         },
         createdBy: {
             type: Schema.Types.String,
@@ -33,14 +41,14 @@ const TaskSchema = new Schema<TaskInterface>(
                 type: Schema.Types.String,
             },
         ],
-        status: {
-            type: Schema.Types.String,
-            enum: {
-                values: ['open', 'resolved', 'invalid', 'wontfix'],
-                message: '{VALUE} is not supported',
-            },
-            default: 'open',
-        },
+        // status: {
+        //     type: Schema.Types.String,
+        //     enum: {
+        //         values: ['open', 'resolved', 'invalid', 'wontfix'],
+        //         message: '{VALUE} is not supported',
+        //     },
+        //     default: 'open',
+        // },
         priority: {
             type: Schema.Types.String,
             enum: {
@@ -49,17 +57,21 @@ const TaskSchema = new Schema<TaskInterface>(
             },
             default: 'normal',
         },
-        board: {
-            type: Schema.Types.String,
-            ref: 'Board',
-            required: [true, 'Please provide board'],
-        },
     },
     {
         timestamps: true,
-        // toJSON: { virtuals: true },
-        // toObject: { virtuals: true },
+        toObject: { virtuals: true },
     }
 )
 
-export default model<TaskInterface>('Task', TaskSchema)
+CardSchema.set('toJSON', {
+    virtuals: true,
+    versionKey: false,
+    transform: function (doc, ret) {
+        ret.id = ret._id
+        delete ret._id
+        delete ret.__v
+    },
+})
+
+export default model<CardInterface>('Card', CardSchema)

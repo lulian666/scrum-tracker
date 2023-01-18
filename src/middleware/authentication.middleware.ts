@@ -4,7 +4,7 @@ import utils from '../utils'
 import { authInfoRequest } from '@/controllers/request.definition'
 import Token from '@/models/Token.model'
 
-const authenticateUser = async (
+const authenticateUserBefore = async (
     req: authInfoRequest,
     res: Response,
     next: NextFunction
@@ -36,6 +36,28 @@ const authenticateUser = async (
         next()
     } catch (error) {
         throw new CustomError.UnauthenticatedError('Authentication Invalid')
+    }
+}
+
+const authenticateUser = async (
+    req: authInfoRequest,
+    res: Response,
+    next: NextFunction
+) => {
+    // check header
+    const authHeader = req.headers.authorization
+    if (!authHeader || !authHeader.startsWith('Bearer')) {
+        throw new CustomError.UnauthenticatedError('Authentication invalid')
+    }
+    const token = authHeader.split(' ')[1]
+
+    try {
+        const payload = utils.isTokenValid(token)
+        // attach the user to the job routes
+        req.user = (<any>payload).user
+        next()
+    } catch (error) {
+        throw new CustomError.UnauthenticatedError('Authentication invalid')
     }
 }
 
