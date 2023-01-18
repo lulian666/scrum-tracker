@@ -17,18 +17,19 @@ router
         authenticationMiddleware.authenticateUser,
         cardController.getBoardCards
     )
+
 router
-    .route('/:boardId/cards/myCards')
-    .get(authenticationMiddleware.authenticateUser, cardController.getUserCards)
-router
-    .route('/:boardId/cards/:cardId')
+    .route('/:boardId/lists/:listId/cards/:cardId')
     .get(
         authenticationMiddleware.authenticateUser,
         cardController.getSingleCard
     )
+
+router
+    .route('/:boardId/cards/:cardId')
     .patch(
         authenticationMiddleware.authenticateUser,
-        cardController.updatedCard
+        cardController.updateCard
     )
     .delete(
         authenticationMiddleware.authenticateUser,

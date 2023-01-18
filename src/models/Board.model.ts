@@ -1,7 +1,7 @@
 import { Schema, model, Document } from 'mongoose'
 
 export interface BoardInterface {
-    logo: string
+    icon: string
     title: string
     description: string
     members: string[]
@@ -11,13 +11,13 @@ export interface BoardInterface {
 
 const BoardSchema = new Schema<BoardInterface>(
     {
-        logo: {
+        icon: {
             type: Schema.Types.String,
-            required: [true, 'Please provide logo'],
+            required: [true, 'Please provide icon'],
         },
         title: {
             type: Schema.Types.String,
-            required: [true, 'Please provide name'],
+            required: [true, 'Please provide title'],
         },
         description: {
             type: Schema.Types.String,
@@ -44,9 +44,18 @@ const BoardSchema = new Schema<BoardInterface>(
     },
     {
         timestamps: true,
-        toJSON: { virtuals: true },
         toObject: { virtuals: true },
     }
 )
+
+BoardSchema.set('toJSON', {
+    virtuals: true,
+    versionKey: false,
+    transform: function (doc, ret) {
+        ret.id = ret._id
+        delete ret._id
+        delete ret.__v
+    },
+})
 
 export default model<BoardInterface>('Board', BoardSchema)

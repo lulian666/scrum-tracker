@@ -13,9 +13,9 @@ const createBoard = async (
     const board = await boardService.create({
         title,
         description,
-        logo: icon,
+        icon,
         lists,
-        members: [],
+        members: [managerId],
         manager: managerId,
     })
 
@@ -38,18 +38,44 @@ const getUserBoards = async (
     })
 }
 
-const updateBoard = async (req: Request, res: Response): Promise<void> => {
-    res.send('updateBoard')
+const updateBoard = async (
+    req: authInfoRequest,
+    res: Response
+): Promise<void> => {
+    const { boardId } = req.params
+
+    const board = await boardService.updateBoard(boardId, req.body)
+    res.status(StatusCodes.OK).json({ board })
 }
 
 const getSingleBoard = async (req: Request, res: Response): Promise<void> => {
-    const id = req.params.id
-    const board = await boardService.getSingleBoard(id)
+    const { boardId } = req.params
+    const board = await boardService.getSingleBoard(boardId)
     res.status(StatusCodes.OK).json({ board })
 }
 
 const deleteBoard = async (req: Request, res: Response): Promise<void> => {
-    res.send('deleteBoard')
+    const { boardId } = req.params
+    await boardService.deleteBoard(boardId)
+    res.status(StatusCodes.OK).json({})
+}
+
+const getBoardMembers = async (req: Request, res: Response): Promise<void> => {
+    const { boardId } = req.params
+    // const members = await boardService.getBoardMembers(boardId)
+    const members = [
+        {
+            _id: '63b8eece76774b831b4b5c03',
+            name: 'dj6',
+            avatar: 'assets/images/avatars/female-01.jpg',
+            data: {
+                displayName: 'dj6',
+            },
+            uuid: '63b8eece76774b831b4b5c03',
+            id: '63b8eece76774b831b4b5c03',
+        },
+    ]
+    res.status(StatusCodes.OK).json({ members })
 }
 
 export default {
@@ -59,4 +85,5 @@ export default {
     updateBoard,
     getSingleBoard,
     deleteBoard,
+    getBoardMembers,
 }

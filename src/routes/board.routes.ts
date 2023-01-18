@@ -39,7 +39,7 @@ router
     )
 
 router
-    .route('/:id')
+    .route('/:boardId')
     .patch(
         authenticationMiddleware.authenticateUser,
         boardController.updateBoard
@@ -51,6 +51,13 @@ router
     .delete(
         authenticationMiddleware.authenticateUser,
         boardController.deleteBoard
+    )
+
+router
+    .route('/:boardId/members')
+    .get(
+        authenticationMiddleware.authenticateUser,
+        boardController.getBoardMembers
     )
 
 export default router

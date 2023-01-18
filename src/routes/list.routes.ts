@@ -15,5 +15,10 @@ router
 router
     .route('/:boardId/lists/:listId')
     .get(authenticationMiddleware.authenticateUser, listController.getList)
+    .patch(authenticationMiddleware.authenticateUser, listController.updateList)
+    .delete(
+        authenticationMiddleware.authenticateUser,
+        listController.deleteList
+    )
 
 export default router

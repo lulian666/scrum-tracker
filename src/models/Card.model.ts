@@ -2,8 +2,9 @@ import { Schema, model, Document } from 'mongoose'
 
 export interface CardInterface {
     name: string
-    boardId: string
-    listId: string
+    // don't think we need this in mongo
+    // boardId: string
+    // listId: string
     title: string
     description: string
     attachments: string[]
@@ -18,16 +19,6 @@ const CardSchema = new Schema<CardInterface>(
         name: {
             type: Schema.Types.String,
             // required: [true, 'Please provide name'],
-        },
-        boardId: {
-            type: Schema.Types.String,
-            ref: 'Board',
-            required: [true, 'Please provide board id'],
-        },
-        listId: {
-            type: Schema.Types.String,
-            ref: 'listId',
-            required: [true, 'Please provide list id'],
         },
         title: {
             type: Schema.Types.String,
@@ -66,17 +57,21 @@ const CardSchema = new Schema<CardInterface>(
             },
             default: 'normal',
         },
-        // board: {
-        //     type: Schema.Types.String,
-        //     ref: 'Board',
-        //     required: [true, 'Please provide board'],
-        // },
     },
     {
         timestamps: true,
-        toJSON: { virtuals: true },
         toObject: { virtuals: true },
     }
 )
+
+CardSchema.set('toJSON', {
+    virtuals: true,
+    versionKey: false,
+    transform: function (doc, ret) {
+        ret.id = ret._id
+        delete ret._id
+        delete ret.__v
+    },
+})
 
 export default model<CardInterface>('Card', CardSchema)

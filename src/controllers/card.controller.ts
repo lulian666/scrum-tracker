@@ -7,29 +7,30 @@ const createCard = async (
     req: authInfoRequest,
     res: Response
 ): Promise<void> => {
-    console.log('req.body', req.body)
     const { boardId, listId } = req.params
     const { title, name, description } = req.body
     const { userId } = req.user!
-    const card = await cardService.create({
+    const card = await cardService.create(listId, {
         title,
         name,
         description,
-        boardId,
-        listId,
         createdBy: userId,
         assignTo: userId,
         attachments: [],
         priority: 'normal',
     })
-    res.status(StatusCodes.CREATED).send({ card })
+    const cardForFE = { ...card.toObject(), boardId, listId }
+    res.status(StatusCodes.CREATED).send({ card: cardForFE })
 }
 
-const updatedCard = async (
+const updateCard = async (
     req: authInfoRequest,
     res: Response
 ): Promise<void> => {
-    res.send('updatedCard')
+    const { boardId, cardId } = req.params
+    const customCard = await cardService.updateCard(boardId, cardId, req.body)
+
+    res.status(StatusCodes.OK).send({ card: customCard })
 }
 
 const getSingleCard = async (
@@ -45,7 +46,9 @@ const deleteCard = async (
     req: authInfoRequest,
     res: Response
 ): Promise<void> => {
-    res.send('deleteCard')
+    const { boardId, cardId } = req.params
+    await cardService.deleteCard(boardId, cardId)
+    res.status(StatusCodes.OK).json({})
 }
 
 const getUserCards = async (
@@ -66,7 +69,7 @@ const getBoardCards = async (
 
 export default {
     createCard,
-    updatedCard,
+    updateCard,
     deleteCard,
     getUserCards,
     getSingleCard,
