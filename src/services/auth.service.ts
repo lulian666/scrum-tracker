@@ -15,7 +15,7 @@ async function register({
     email: string
     password: string
     role: string
-}): Promise<UserInterface> {
+}) {
     // if already reisgtered yet not verified
     const emailAlreadyExist = await User.findOne({ email })
     const eventEmitter = emailEventEmitter.sendVerificationEmail()
@@ -29,7 +29,13 @@ async function register({
             { new: true, runValidators: true }
         )
         eventEmitter.emit('signup', email)
-        return user!
+        // return user!
+
+        // sign an token for now
+        // will use email system to login
+        const safeUser = utils.createSafeUser(emailAlreadyExist)
+        const accessToken = utils.createJWT({ payload: { user: safeUser } })
+        return { safeUser, accessToken }
     }
 
     if (emailAlreadyExist && emailAlreadyExist.isVerified) {
@@ -44,7 +50,12 @@ async function register({
         verificationToken,
     })
     eventEmitter.emit('signup', email)
-    return user
+
+    // sign an token for now
+    // will use email system to login
+    const safeUser = utils.createSafeUser(user)
+    const accessToken = utils.createJWT({ payload: { user: safeUser } })
+    return { safeUser, accessToken }
 }
 
 async function login({

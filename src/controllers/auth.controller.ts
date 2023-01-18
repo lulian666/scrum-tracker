@@ -2,11 +2,12 @@ import { StatusCodes } from 'http-status-codes'
 import { Request, Response } from 'express'
 import authService from '@/services/auth.service'
 import { authInfoRequest } from './request.definition'
+import utils from '@/utils/index'
 
 const register = async (req: Request, res: Response): Promise<void> => {
-    const { email, name, password } = req.body
+    const { email, displayName: name, password } = req.body
 
-    await authService.register({
+    const { safeUser, accessToken } = await authService.register({
         email,
         name,
         password,
@@ -15,6 +16,8 @@ const register = async (req: Request, res: Response): Promise<void> => {
 
     res.status(StatusCodes.CREATED).json({
         message: 'Please check your email for verification',
+        user: safeUser,
+        access_token: accessToken,
     })
 }
 

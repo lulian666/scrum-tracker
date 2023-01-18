@@ -1,8 +1,8 @@
 export default {
-    host: "smtp.ethereal.email",
+    host: 'smtp.ethereal.email',
     port: 587,
     auth: {
-        user: "dortha.schiller@ethereal.email",
-        pass: "RkQR4EKXgAARpgnCpy",
+        user: 'camilla.wisoky@ethereal.email',
+        pass: 'BmgYKhXHHR96Ke1Atz',
     },
 }
