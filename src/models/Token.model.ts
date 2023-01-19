@@ -5,30 +5,30 @@ interface TokenInterface extends Document {
     ip: string
     userAgent: string
     isValid: boolean
-    user: object
+    user: string
 }
 
 const TokenSchema = new Schema<TokenInterface>(
     {
         refreshToken: {
-            type: Schema.Types.String,
+            type: String,
             required: true,
         },
         ip: {
-            type: Schema.Types.String,
+            type: String,
             required: true,
         },
         userAgent: {
-            type: Schema.Types.String,
+            type: String,
             required: true,
         },
         isValid: {
             // user black list
-            type: Schema.Types.Boolean,
+            type: Boolean,
             default: true,
         },
         user: {
-            type: Schema.Types.ObjectId,
+            type: String,
             ref: 'User',
             required: true,
         },

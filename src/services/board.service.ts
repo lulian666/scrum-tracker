@@ -28,7 +28,7 @@ async function create({
     return board
 }
 
-async function getUserBoards(userId: String) {
+async function getUserBoards(userId: string) {
     // todo find should have query '{ manager: userId }
     const boards = await Board.find()
         .populate({
@@ -42,7 +42,7 @@ async function getUserBoards(userId: String) {
     return boards
 }
 
-async function getSingleBoard(boardId: String) {
+async function getSingleBoard(boardId: string) {
     const board = await Board.findOne({ _id: boardId }).populate({
         path: 'lists',
         select: 'id cards',
@@ -89,7 +89,7 @@ async function updateBoard(boardId: string, updateData: any) {
     return board
 }
 
-async function deleteBoard(boardId: String) {
+async function deleteBoard(boardId: string) {
     // delete board means also delete lists and cards in it
     const board = await Board.findOne({ _id: boardId }).populate({
         path: 'lists',
@@ -107,14 +107,14 @@ async function deleteBoard(boardId: String) {
     await board.delete()
 }
 
-async function getBoardMembers(boardId: String) {
+async function getBoardMembers(boardId: string) {
     const board = await Board.findOne({ _id: boardId })
     if (!board) {
         throw new CustomError.NotFoundError(
             `Board with id ${boardId} does not exist`
         )
     }
-    const members: String[] = board.members
+    const members: string[] = board.members
     const users = User.find({ _id: members }).select('id name')
     return users
 }

@@ -2,25 +2,18 @@ import { Schema, model, Document } from 'mongoose'
 
 export interface ListInterface {
     title: string
-    // don't think we need this in mongo
-    // boardId: string
     cards: string[]
 }
 
 const ListSchema = new Schema<ListInterface>(
     {
         title: {
-            type: Schema.Types.String,
+            type: String,
             required: [true, 'Please provide title'],
         },
-        // boardId: {
-        //     type: Schema.Types.String,
-        //     ref: 'Board',
-        //     required: true,
-        // },
         cards: [
             {
-                type: Schema.Types.String,
+                type: String,
                 ref: 'Card',
             },
         ],

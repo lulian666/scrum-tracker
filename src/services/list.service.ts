@@ -4,7 +4,7 @@ import CustomError from '@/errors/index'
 import cardService from './card.service'
 import Card from '@/models/Card.model'
 
-async function create(boardId: String, { title, cards }: ListInterface) {
+async function create(boardId: string, { title, cards }: ListInterface) {
     let board = await Board.findOne({ _id: boardId })
     if (!board) {
         throw new CustomError.BadRequestError(
@@ -17,12 +17,12 @@ async function create(boardId: String, { title, cards }: ListInterface) {
     return list
 }
 
-async function getList(listId: String) {
+async function getList(listId: string) {
     const list = await List.findOne({ _id: listId })
     return list
 }
 
-async function getBoardLists(boardId: String) {
+async function getBoardLists(boardId: string) {
     const board = await Board.findOne({ _id: boardId }).populate({
         path: 'lists',
     })
@@ -36,7 +36,7 @@ async function getBoardLists(boardId: String) {
     return lists
 }
 
-async function updateList(listId: String, { title, cards }: ListInterface) {
+async function updateList(listId: string, { title, cards }: ListInterface) {
     const list = await List.findOneAndUpdate(
         { _id: listId },
         {
@@ -64,7 +64,7 @@ async function updateList(listId: String, { title, cards }: ListInterface) {
     return list
 }
 
-async function deleteList(boardId: String, listId: String) {
+async function deleteList(boardId: string, listId: string) {
     // delete listId in board.lists
     const board = await Board.findOneAndUpdate(
         { _id: boardId },

@@ -17,32 +17,32 @@ export interface CardInterface {
 const CardSchema = new Schema<CardInterface>(
     {
         name: {
-            type: Schema.Types.String,
+            type: String,
             // required: [true, 'Please provide name'],
         },
         title: {
-            type: Schema.Types.String,
+            type: String,
             required: [true, 'Please provide title'],
         },
         description: {
-            type: Schema.Types.String,
+            type: String,
             maxlength: 400,
         },
         createdBy: {
-            type: Schema.Types.String,
+            type: String,
             ref: 'User',
         },
         assignTo: {
-            type: Schema.Types.String,
+            type: String,
             ref: 'User',
         },
         attachments: [
             {
-                type: Schema.Types.String,
+                type: String,
             },
         ],
         // status: {
-        //     type: Schema.Types.String,
+        //     type: String,
         //     enum: {
         //         values: ['open', 'resolved', 'invalid', 'wontfix'],
         //         message: '{VALUE} is not supported',
@@ -50,7 +50,7 @@ const CardSchema = new Schema<CardInterface>(
         //     default: 'open',
         // },
         priority: {
-            type: Schema.Types.String,
+            type: String,
             enum: {
                 values: ['high', 'normal', 'low'],
                 message: '{VALUE} is not supported',

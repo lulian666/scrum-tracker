@@ -4,7 +4,7 @@ import Board from '@/models/Board.model'
 import CustomError from '@/errors/index'
 
 async function create(
-    listId: String,
+    listId: string,
     {
         title,
         name,
@@ -35,12 +35,12 @@ async function create(
     return card
 }
 
-async function getSingleCard(cardId: String) {
+async function getSingleCard(cardId: string) {
     const card = await Card.findOne({ _id: cardId })
     return card
 }
 
-async function getBoardCards(boardId: String) {
+async function getBoardCards(boardId: string) {
     const board = await Board.findOne({ _id: boardId }).populate({
         path: 'lists',
         select: 'id',
@@ -65,7 +65,7 @@ async function getBoardCards(boardId: String) {
     return cards
 }
 
-async function updateCard(boardId: String, cardId: String, updateData: any) {
+async function updateCard(boardId: string, cardId: string, updateData: any) {
     const card = await Card.findOneAndUpdate({ _id: cardId }, updateData, {
         new: true,
         runValidators: true,
@@ -81,7 +81,7 @@ async function updateCard(boardId: String, cardId: String, updateData: any) {
     return customCard
 }
 
-async function deleteCard(boardId: String, cardId: String) {
+async function deleteCard(boardId: string, cardId: string) {
     // delete cardId in list.cards
     const list = await List.findOneAndUpdate(
         { cards: cardId },
