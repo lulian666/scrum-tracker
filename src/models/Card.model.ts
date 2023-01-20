@@ -2,16 +2,13 @@ import { Schema, model, Document } from 'mongoose'
 
 export interface CardInterface {
     name: string
-    // don't think we need this in mongo
-    // boardId: string
-    // listId: string
     title: string
     description: string
     attachments: string[]
-    createdBy: string
-    assignTo: string
-    // status: string
-    priority: string
+    // createdBy: string
+    // assignTo: string
+    // priority: string
+    activities: string[]
 }
 
 const CardSchema = new Schema<CardInterface>(
@@ -28,35 +25,33 @@ const CardSchema = new Schema<CardInterface>(
             type: String,
             maxlength: 400,
         },
-        createdBy: {
-            type: String,
-            ref: 'User',
-        },
-        assignTo: {
-            type: String,
-            ref: 'User',
-        },
+        // createdBy: {
+        //     type: String,
+        //     ref: 'User',
+        // },
+        // assignTo: {
+        //     type: String,
+        //     ref: 'User',
+        // },
         attachments: [
             {
                 type: String,
             },
         ],
-        // status: {
+        // priority: {
         //     type: String,
         //     enum: {
-        //         values: ['open', 'resolved', 'invalid', 'wontfix'],
+        //         values: ['high', 'normal', 'low'],
         //         message: '{VALUE} is not supported',
         //     },
-        //     default: 'open',
+        //     default: 'normal',
         // },
-        priority: {
-            type: String,
-            enum: {
-                values: ['high', 'normal', 'low'],
-                message: '{VALUE} is not supported',
+        activities: [
+            {
+                type: String,
+                ref: 'Activity',
             },
-            default: 'normal',
-        },
+        ],
     },
     {
         timestamps: true,

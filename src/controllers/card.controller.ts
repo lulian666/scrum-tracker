@@ -14,10 +14,11 @@ const createCard = async (
         title,
         name,
         description,
-        createdBy: userId,
-        assignTo: userId,
+        // createdBy: userId,
+        // assignTo: userId,
         attachments: [],
-        priority: 'normal',
+        activities: [],
+        // priority: 'normal',
     })
     const cardForFE = { ...card.toObject(), boardId, listId }
     res.status(StatusCodes.CREATED).send({ card: cardForFE })
@@ -47,8 +48,8 @@ const deleteCard = async (
     res: Response
 ): Promise<void> => {
     const { boardId, cardId } = req.params
-    await cardService.deleteCard(boardId, cardId)
-    res.status(StatusCodes.OK).json({})
+    const card = await cardService.deleteCard(boardId, cardId)
+    res.status(StatusCodes.OK).json({ card })
 }
 
 const getUserCards = async (

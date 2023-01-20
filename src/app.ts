@@ -15,6 +15,7 @@ import authRouter from '@/routes/auth.routes'
 import boardRouter from '@/routes/board.routes'
 import cardRouter from '@/routes/card.routes'
 import listRouter from '@/routes/list.routes'
+import commentRouter from '@/routes/comment.routes'
 
 const app: Application = express()
 app.set('trust proxy', 1)
@@ -42,6 +43,7 @@ app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/boards', boardRouter)
 app.use('/api/v1/boards', listRouter)
 app.use('/api/v1/boards', cardRouter)
+app.use('/api/v1/boards', commentRouter)
 
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)
