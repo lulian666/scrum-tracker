@@ -2,7 +2,7 @@
 id: ea185
 title: Mongoose-What I've learned along the way
 file_version: 1.1.1
-app_version: 1.0.15
+app_version: 1.0.17
 ---
 
 # Model methods
@@ -44,17 +44,17 @@ app_version: 1.0.15
 
 <br/>
 
-`$pull`<swm-token data-swm-token=":src/services/card.service.ts:89:1:2:`            $pull: { cards: cardId },`"/> means take out a value from a field. In this particular example means taking the `cardId`<swm-token data-swm-token=":src/services/card.service.ts:89:10:10:`            $pull: { cards: cardId },`"/> off the cards field.
+`$pull`<swm-token data-swm-token=":src/services/card.service.ts:106:1:2:`            $pull: { cards: cardId },`"/> means take out a value from a field. In this particular example means taking the `cardId`<swm-token data-swm-token=":src/services/card.service.ts:106:10:10:`            $pull: { cards: cardId },`"/> off the cards field.
 <!-- NOTE-swimm-snippet: the lines below link your snippet to Swimm -->
 ### 📄 src/services/card.service.ts
 ```typescript
-86         const list = await List.findOneAndUpdate(
-87             { cards: cardId },
-88             {
-89                 $pull: { cards: cardId },
-90             },
-91             { new: true }
-92         )
+103        const list = await List.findOneAndUpdate(
+104            { cards: cardId },
+105            {
+106                $pull: { cards: cardId },
+107            },
+108            { new: true }
+109        )
 ```
 
 <br/>
@@ -89,19 +89,25 @@ In this code snippet. This function will return all the Board documents with lis
 <br/>
 
 You can even use another populate in a populate like this. It will populate card documents within the lists.
+
+Also, you can sort populated documents by adding `options`<swm-token data-swm-token=":src/services/card.service.ts:55:1:1:`            options: { sort: { updatedAt: -1 } },`"/> with populate. As the `sort`<swm-token data-swm-token=":src/services/card.service.ts:55:6:6:`            options: { sort: { updatedAt: -1 } },`"/> option is to sort by a specific key with ascending order or descending order (represented by 1 and -1).
 <!-- NOTE-swimm-snippet: the lines below link your snippet to Swimm -->
 ### 📄 src/services/card.service.ts
 ```typescript
-44         const board = await Board.findOne({ _id: boardId }).populate({
-45             path: 'lists',
-46             select: 'id',
-47             populate: 'cards',
-48         })
+49         const board = await Board.findOne({ _id: boardId }).populate({
+50             path: 'lists',
+51             select: 'id',
+52             populate: {
+53                 path: 'cards',
+54                 populate: 'activities',
+55                 options: { sort: { updatedAt: -1 } },
+56             },
+57         })
 ```
 
 <br/>
 
-<br/>
+/co
 
 # Schema
 
@@ -352,8 +358,6 @@ Valid options:
 >     
 
 Read more about options in Mongoose [documents](https://mongoosejs.com/docs/guide.html#options).
-
-<br/>
 
 # Schema Types
 
