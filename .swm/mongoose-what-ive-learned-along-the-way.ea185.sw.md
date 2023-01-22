@@ -32,14 +32,14 @@ app_version: 1.0.17
 
 <br/>
 
-`$set`<swm-token data-swm-token=":src/services/board.service.ts:72:3:4:`                { $set: { cards: list.cards } }`"/> means you can set a specific field to a value
+`$set`<swm-token data-swm-token=":src/services/board.service.ts:75:3:4:`                { $set: { cards: list.cards } }`"/> means you can set a specific field to a value
 <!-- NOTE-swimm-snippet: the lines below link your snippet to Swimm -->
 ### 📄 src/services/board.service.ts
 ```typescript
-70                 await List.findOneAndUpdate(
-71                     { _id: list.id },
-72                     { $set: { cards: list.cards } }
-73                 )
+73                 await List.findOneAndUpdate(
+74                     { _id: list.id },
+75                     { $set: { cards: list.cards } }
+76                 )
 ```
 
 <br/>
@@ -67,7 +67,7 @@ app_version: 1.0.17
 
 Sometimes you have an array of ids in your model which is a quite normal approach. And you want to send back not only the ids but also other documents with these ids.
 
-The `path`<swm-token data-swm-token=":src/services/board.service.ts:35:1:1:`            path: &#39;lists&#39;,`"/> specify which field you would like to populate other documents into and the `select`<swm-token data-swm-token=":src/services/board.service.ts:36:1:1:`            select: &#39;id cards&#39;,`"/> represents the fields you want to include (or exclude by using the '-' symbol).
+The `path`<swm-token data-swm-token=":src/services/board.service.ts:35:1:1:`            path: &#39;lists&#39;,`"/> specify which field you would like to populate other documents into and the `select`<swm-token data-swm-token=":src/services/board.service.ts:37:1:1:`            select: &#39;id cards&#39;,`"/> represents the fields you want to include (or exclude by using the '-' symbol).
 
 In this code snippet. This function will return all the Board documents with lists and members populated with some fields of their own.
 
@@ -78,12 +78,14 @@ In this code snippet. This function will return all the Board documents with lis
 33         const boards = await Board.find()
 34             .populate({
 35                 path: 'lists',
-36                 select: 'id cards',
-37             })
-38             .populate({
-39                 path: 'members',
-40                 select: 'id name',
-41             })
+36                 options: { sort: { createdAt: -1 } },
+37                 select: 'id cards',
+38             })
+39             .populate({
+40                 path: 'members',
+41                 options: { sort: { updatedAt: -1 } },
+42                 select: 'id name',
+43             })
 ```
 
 <br/>
