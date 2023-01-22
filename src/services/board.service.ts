@@ -33,12 +33,15 @@ async function getUserBoards(userId: string) {
     const boards = await Board.find()
         .populate({
             path: 'lists',
+            options: { sort: { createdAt: -1 } },
             select: 'id cards',
         })
         .populate({
             path: 'members',
+            options: { sort: { updatedAt: -1 } },
             select: 'id name',
         })
+        .sort({ createdAt: -1 })
     return boards
 }
 
