@@ -32,29 +32,35 @@ app_version: 1.0.17
 
 <br/>
 
-`$set`<swm-token data-swm-token=":src/services/board.service.ts:75:3:4:`                { $set: { cards: list.cards } }`"/> means you can set a specific field to a value
+`$set`<swm-token data-swm-token=":src/services/board.service.ts:76:5:6:`                // { $set: { cards: list.cards } }`"/> means you can set a specific field to a value
+
+Note: If you set a path to an empty value, it doesn't do anything to the path. Be careful of some unexpected results.
+
+Quote: Starting in MongoDB 5.0, `mongod` no longer raises an error when you use an update operator like `$set`<swm-token data-swm-token=":src/services/board.service.ts:76:5:6:`                // { $set: { cards: list.cards } }`"/> with an empty operand expression ( `{ }` ). An empty update results in no changes and no [oplog](https://www.mongodb.com/docs/manual/reference/glossary/#std-term-oplog) entry is created (meaning that the operation is a no-op).
 <!-- NOTE-swimm-snippet: the lines below link your snippet to Swimm -->
 ### 📄 src/services/board.service.ts
 ```typescript
 73                 await List.findOneAndUpdate(
 74                     { _id: list.id },
-75                     { $set: { cards: list.cards } }
-76                 )
+75                     // Here's a bug if cards is empty
+76                     // { $set: { cards: list.cards } }
+77                     { cards: list.cards }
+78                 )
 ```
 
 <br/>
 
-`$pull`<swm-token data-swm-token=":src/services/card.service.ts:106:1:2:`            $pull: { cards: cardId },`"/> means take out a value from a field. In this particular example means taking the `cardId`<swm-token data-swm-token=":src/services/card.service.ts:106:10:10:`            $pull: { cards: cardId },`"/> off the cards field.
+`$pull`<swm-token data-swm-token=":src/services/card.service.ts:107:1:2:`            $pull: { cards: cardId },`"/> means take out a value from a field. In this particular example means taking the `cardId`<swm-token data-swm-token=":src/services/card.service.ts:107:10:10:`            $pull: { cards: cardId },`"/> off the cards field.
 <!-- NOTE-swimm-snippet: the lines below link your snippet to Swimm -->
 ### 📄 src/services/card.service.ts
 ```typescript
-103        const list = await List.findOneAndUpdate(
-104            { cards: cardId },
-105            {
-106                $pull: { cards: cardId },
-107            },
-108            { new: true }
-109        )
+104        const list = await List.findOneAndUpdate(
+105            { cards: cardId },
+106            {
+107                $pull: { cards: cardId },
+108            },
+109            { new: true }
+110        )
 ```
 
 <br/>
