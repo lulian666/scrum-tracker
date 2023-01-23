@@ -54,7 +54,10 @@ const CardSchema = new Schema<CardInterface>(
         ],
     },
     {
-        timestamps: true,
+        timestamps: {
+            updatedAt: false,
+            createdAt: true,
+        },
         toObject: { virtuals: true },
     }
 )

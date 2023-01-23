@@ -79,14 +79,15 @@ async function updateCard(
     cardId: string,
     updateData: CardInterface
 ) {
-    //leave the activities alone since it has been add to card through comment service
+    //leave the activiti'es alone since it has been add to card through comment service
     if (updateData.activities) {
         delete Object(updateData).activities
     }
     const card = await Card.findOneAndUpdate({ _id: cardId }, updateData, {
         new: true,
         runValidators: true,
-    }).populate({ path: 'activities', options: { sort: { updatedAt: -1 } } })
+    })
+        .populate({ path: 'activities', options: { sort: { updatedAt: -1 } } })
     if (!card) {
         throw new CustomError.NotFoundError(
             `List with id ${cardId} does not exist`

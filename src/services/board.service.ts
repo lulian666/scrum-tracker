@@ -72,7 +72,9 @@ async function updateBoard(boardId: string, updateData: any) {
         updateData.lists.forEach(async (list: { id: any; cards: any }) => {
             await List.findOneAndUpdate(
                 { _id: list.id },
-                { $set: { cards: list.cards } }
+                // Here's a bug if cards is empty
+                // { $set: { cards: list.cards } }
+                { cards: list.cards }
             )
         })
 
