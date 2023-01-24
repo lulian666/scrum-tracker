@@ -36,6 +36,7 @@ const CardSchema = new Schema<CardInterface>(
         attachments: [
             {
                 type: String,
+                ref: 'Activity',
             },
         ],
         // priority: {

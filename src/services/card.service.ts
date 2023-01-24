@@ -13,6 +13,7 @@ async function create(
         // createdBy,
         // assignTo,
         attachments = [],
+        activities = [],
     }: // priority = 'normal',
     CardInterface
 ) {
@@ -30,6 +31,7 @@ async function create(
         // assignTo,
         attachments,
         // priority,
+        activities,
     })
     list.cards.push(String(card._id))
     await list.save()
@@ -39,20 +41,27 @@ async function create(
 async function getSingleCard(cardId: string) {
     let card = await Card.findOne({ _id: cardId }).populate({
         path: 'activities',
-        options: { sort: { updatedAt: -1 } },
+        options: { sort: { createdAt: -1 } },
+    }).populate({
+        path: 'attachments',
+        options: { sort: { createdAt: -1 } },
     })
 
     return card
 }
 
 async function getBoardCards(boardId: string) {
+    console.log('here')
     const board = await Board.findOne({ _id: boardId }).populate({
         path: 'lists',
         select: 'id',
         populate: {
             path: 'cards',
-            populate: 'activities',
-            options: { sort: { updatedAt: -1 } },
+            populate: [
+                { path: 'activities', options: { sort: { createdAt: -1 } } },
+                { path: 'attachments', options: { sort: { createdAt: -1 } } },
+            ],
+            options: { sort: { createdAt: -1 } },
         },
     })
     if (!board) {
@@ -60,6 +69,7 @@ async function getBoardCards(boardId: string) {
             `Board with id ${boardId} does not exist`
         )
     }
+    console.log('board.lists', Object(board.lists[0]).cards)
 
     let cards: Object[] = []
     board.lists.forEach((list) => {
@@ -79,15 +89,21 @@ async function updateCard(
     cardId: string,
     updateData: CardInterface
 ) {
-    //leave the activiti'es alone since it has been add to card through comment service
+    //leave the activities alone since it has been add to card through comment service
     if (updateData.activities) {
         delete Object(updateData).activities
     }
+    if (updateData.attachments) {
+        delete Object(updateData).attachments
+    }
+
     const card = await Card.findOneAndUpdate({ _id: cardId }, updateData, {
         new: true,
         runValidators: true,
     })
-        .populate({ path: 'activities', options: { sort: { updatedAt: -1 } } })
+        .populate({ path: 'activities', options: { sort: { createdAt: -1 } } })
+        .populate({ path: 'attachments', options: { sort: { createdAt: -1 } } })
+
     if (!card) {
         throw new CustomError.NotFoundError(
             `List with id ${cardId} does not exist`

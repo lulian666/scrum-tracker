@@ -2,7 +2,6 @@ import Board, { BoardInterface } from '@/models/Board.model'
 import User from '@/models/User.model'
 import CustomError from '@/errors/index'
 import List from '@/models/List.model'
-import listService from './list.service'
 import Card from '@/models/Card.model'
 
 async function create({

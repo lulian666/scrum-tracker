@@ -30,7 +30,7 @@ const UserSchema = new Schema<UserInterface>(
         password: {
             type: String,
             required: [true, 'Please provide password'],
-            select: false,
+            // select: false,
         },
         role: {
             type: String,

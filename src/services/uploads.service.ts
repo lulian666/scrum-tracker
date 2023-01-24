@@ -2,9 +2,10 @@ import cloudinary from '@/config/cloudinary.config'
 import { UploadedFile } from 'express-fileupload'
 import fs from 'fs'
 
-async function uploadScrumLogo(imageFile: UploadedFile) {
+async function uploadImage(imageFile: UploadedFile) {
+    console.log('imageFile', imageFile)
     const result = await cloudinary.uploader.upload(imageFile.tempFilePath, {
-        use_filename: true,
+        filename_override: imageFile.name,
         folder: 'scrum-tracker',
     })
 
@@ -13,5 +14,5 @@ async function uploadScrumLogo(imageFile: UploadedFile) {
 }
 
 export default {
-    uploadScrumLogo,
+    uploadImage,
 }
