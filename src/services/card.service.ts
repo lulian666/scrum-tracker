@@ -3,6 +3,7 @@ import List from '@/models/List.model'
 import Board from '@/models/Board.model'
 import CustomError from '@/errors/index'
 import eventEmitter from '@/subscribers/notification.subscriber'
+import Activity from '@/models/Activity.model'
 
 async function createCard(
     boardId: string,
@@ -120,6 +121,13 @@ async function updateCard(
 }
 
 async function deleteCard(boardId: string, cardId: string) {
+    const card = await Card.findOne({ _id: cardId })
+    if (!card) {
+        throw new CustomError.NotFoundError(
+            `Card with id ${cardId} does not exist`
+        )
+    }
+
     // delete cardId in list.cards
     const list = await List.findOneAndUpdate(
         { cards: cardId },
@@ -129,8 +137,11 @@ async function deleteCard(boardId: string, cardId: string) {
         { new: true }
     )
 
+    // delete activity and attachments
+    const activities = await Activity.deleteMany({ _id: card.activities })
+
     // delete card document
-    const card = await Card.findOneAndDelete({ _id: cardId })
+    await card.deleteOne()
     return card
 }
 
