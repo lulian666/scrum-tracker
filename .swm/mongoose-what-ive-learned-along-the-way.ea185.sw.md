@@ -2,7 +2,7 @@
 id: ea185
 title: Mongoose-What I've learned along the way
 file_version: 1.1.1
-app_version: 1.0.19
+app_version: 1.0.20
 ---
 
 # Model methods
@@ -32,48 +32,48 @@ app_version: 1.0.19
 
 <br/>
 
-`$set`<swm-token data-swm-token=":src/services/board.service.ts:75:5:6:`                // { $set: { cards: list.cards } }`"/> means you can set a specific field to a value
+`$set`<swm-token data-swm-token=":src/services/board.service.ts:76:5:6:`                // { $set: { cards: list.cards } }`"/> means you can set a specific field to a value
 
 Note: If you set a path to an empty value, it doesn't do anything to the path. Be careful of some unexpected results.
 
-Quote: Starting in MongoDB 5.0, `mongod` no longer raises an error when you use an update operator like `$set`<swm-token data-swm-token=":src/services/board.service.ts:75:5:6:`                // { $set: { cards: list.cards } }`"/> with an empty operand expression ( `{ }` ). An empty update results in no changes and no [oplog](https://www.mongodb.com/docs/manual/reference/glossary/#std-term-oplog) entry is created (meaning that the operation is a no-op).
+Quote: Starting in MongoDB 5.0, `mongod` no longer raises an error when you use an update operator like `$set`<swm-token data-swm-token=":src/services/board.service.ts:76:5:6:`                // { $set: { cards: list.cards } }`"/> with an empty operand expression ( `{ }` ). An empty update results in no changes and no [oplog](https://www.mongodb.com/docs/manual/reference/glossary/#std-term-oplog) entry is created (meaning that the operation is a no-op).
 <!-- NOTE-swimm-snippet: the lines below link your snippet to Swimm -->
 ### 📄 src/services/board.service.ts
 ```typescript
-72                 await List.findOneAndUpdate(
-73                     { _id: list.id },
-74                     // Here's a bug if cards is empty
-75                     // { $set: { cards: list.cards } }
-76                     { cards: list.cards }
-77                 )
+73                 await List.findOneAndUpdate(
+74                     { _id: list.id },
+75                     // Here's a bug if cards is empty
+76                     // { $set: { cards: list.cards } }
+77                     { cards: list.cards }
+78                 )
 ```
 
 <br/>
 
-`$pull`<swm-token data-swm-token=":src/services/card.service.ts:123:1:2:`            $pull: { cards: cardId },`"/> means take out a value from a field. In this particular example means taking the `cardId`<swm-token data-swm-token=":src/services/card.service.ts:123:10:10:`            $pull: { cards: cardId },`"/> off the cards field.
+`$pull`<swm-token data-swm-token=":src/services/card.service.ts:127:1:2:`            $pull: { cards: cardId },`"/> means take out a value from a field. In this particular example means taking the `cardId`<swm-token data-swm-token=":src/services/card.service.ts:127:10:10:`            $pull: { cards: cardId },`"/> off the cards field.
 <!-- NOTE-swimm-snippet: the lines below link your snippet to Swimm -->
 ### 📄 src/services/card.service.ts
 ```typescript
-120        const list = await List.findOneAndUpdate(
-121            { cards: cardId },
-122            {
-123                $pull: { cards: cardId },
-124            },
-125            { new: true }
-126        )
+124        const list = await List.findOneAndUpdate(
+125            { cards: cardId },
+126            {
+127                $pull: { cards: cardId },
+128            },
+129            { new: true }
+130        )
 ```
 
 <br/>
 
 # Document methods
 
-## Document.`populate`<swm-token data-swm-token=":src/services/board.service.ts:33:2:2:`        .populate({`"/>
+## Document.`populate`<swm-token data-swm-token=":src/services/board.service.ts:34:2:2:`        .populate({`"/>
 
 <br/>
 
 Sometimes you have an array of ids in your model which is a quite normal approach. And you want to send back not only the ids but also other documents with these ids.
 
-The `path`<swm-token data-swm-token=":src/services/board.service.ts:34:1:1:`            path: &#39;lists&#39;,`"/> specify which field you would like to populate other documents into and the `select`<swm-token data-swm-token=":src/services/board.service.ts:36:1:1:`            select: &#39;id cards&#39;,`"/> represents the fields you want to include (or exclude by using the '-' symbol).
+The `path`<swm-token data-swm-token=":src/services/board.service.ts:35:1:1:`            path: &#39;lists&#39;,`"/> specify which field you would like to populate other documents into and the `select`<swm-token data-swm-token=":src/services/board.service.ts:37:1:1:`            select: &#39;id cards&#39;,`"/> represents the fields you want to include (or exclude by using the '-' symbol).
 
 In this code snippet. This function will return all the Board documents with lists and members populated with some fields of their own.
 
@@ -81,41 +81,41 @@ In this code snippet. This function will return all the Board documents with lis
 <!-- NOTE-swimm-snippet: the lines below link your snippet to Swimm -->
 ### 📄 src/services/board.service.ts
 ```typescript
-32         const boards = await Board.find()
-33             .populate({
-34                 path: 'lists',
-35                 options: { sort: { createdAt: -1 } },
-36                 select: 'id cards',
-37             })
-38             .populate({
-39                 path: 'members',
-40                 options: { sort: { updatedAt: -1 } },
-41                 select: 'id name',
-42             })
+33         const boards = await Board.find()
+34             .populate({
+35                 path: 'lists',
+36                 options: { sort: { createdAt: -1 } },
+37                 select: 'id cards',
+38             })
+39             .populate({
+40                 path: 'members',
+41                 options: { sort: { updatedAt: -1 } },
+42                 select: 'id name',
+43             })
 ```
 
 <br/>
 
 You can even use another populate in a populate like this. It will populate card documents within the lists.
 
-Also, you can sort populated documents by adding `options`<swm-token data-swm-token=":src/services/card.service.ts:44:1:1:`        options: { sort: { createdAt: -1 } },`"/> with populate. As the `sort`<swm-token data-swm-token=":src/services/card.service.ts:44:6:6:`        options: { sort: { createdAt: -1 } },`"/> option is to sort by a specific key with ascending order or descending order (represented by 1 and -1).
+Also, you can sort populated documents by adding `options`<swm-token data-swm-token=":src/services/card.service.ts:45:1:1:`            options: { sort: { createdAt: -1 } },`"/> with populate. As the `sort`<swm-token data-swm-token=":src/services/card.service.ts:45:6:6:`            options: { sort: { createdAt: -1 } },`"/> option is to sort by a specific key with ascending order or descending order (represented by 1 and -1).
 
-If you need to populate **two paths** that are the same depth, you can put an array as the value of the `populate`<swm-token data-swm-token=":src/services/card.service.ts:60:1:1:`            populate: [`"/> key.
+If you need to populate **two paths** that are the same depth, you can put an array as the value of the `populate`<swm-token data-swm-token=":src/services/card.service.ts:61:1:1:`            populate: [`"/> key.
 <!-- NOTE-swimm-snippet: the lines below link your snippet to Swimm -->
 ### 📄 src/services/card.service.ts
 ```typescript
-55         const board = await Board.findOne({ _id: boardId }).populate({
-56             path: 'lists',
-57             select: 'id',
-58             populate: {
-59                 path: 'cards',
-60                 populate: [
-61                     { path: 'activities', options: { sort: { createdAt: -1 } } },
-62                     { path: 'attachments', options: { sort: { createdAt: -1 } } },
-63                 ],
-64                 options: { sort: { createdAt: -1 } },
-65             },
-66         })
+56         const board = await Board.findOne({ _id: boardId }).populate({
+57             path: 'lists',
+58             select: 'id',
+59             populate: {
+60                 path: 'cards',
+61                 populate: [
+62                     { path: 'activities', options: { sort: { createdAt: -1 } } },
+63                     { path: 'attachments', options: { sort: { createdAt: -1 } } },
+64                 ],
+65                 options: { sort: { createdAt: -1 } },
+66             },
+67         })
 ```
 
 <br/>
@@ -131,6 +131,10 @@ Kind of like the situation here, I have a card that users can upload attachments
 <br/>
 
 Note that when you use document.`deleteOne()`<swm-token data-swm-token=":src/services/activity.service.ts:59:7:9:`    // await attachment.deleteOne()`"/>, this automatically deletes the id that's nested in the father document.
+
+Turns out this is not true. When I delete the activity it didn't do the things described above. I just can't see the activity in the front end cause this id has no content to display.
+
+In summary, `deleteOne`<swm-token data-swm-token=":src/services/activity.service.ts:59:7:7:`    // await attachment.deleteOne()`"/> just delete the document itself, period.
 <!-- NOTE-swimm-snippet: the lines below link your snippet to Swimm -->
 ### 📄 src/services/activity.service.ts
 ```typescript
