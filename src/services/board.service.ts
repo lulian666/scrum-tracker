@@ -4,7 +4,7 @@ import CustomError from '@/errors/index'
 import List from '@/models/List.model'
 import Card from '@/models/Card.model'
 
-async function create({
+async function createBoard({
     title,
     description,
     icon,
@@ -20,6 +20,7 @@ async function create({
         manager,
         lists,
     })
+
     await board.populate({
         path: 'lists',
         select: 'id cards',
@@ -124,7 +125,7 @@ async function getBoardMembers(boardId: string) {
 }
 
 export default {
-    create,
+    createBoard,
     getUserBoards,
     getSingleBoard,
     updateBoard,

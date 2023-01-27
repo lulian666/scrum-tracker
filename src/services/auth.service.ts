@@ -1,7 +1,7 @@
 import User, { UserInterface } from '@/models/User.model'
 import Token from '@/models/Token.model'
 import CustomError from '@/errors/index'
-import emailEventEmitter from '@/subscribers/email.subscriber'
+import eventEmitter from '@/subscribers/email.subscriber'
 import utils from '@/utils/index'
 import crypto from 'crypto'
 
@@ -18,7 +18,7 @@ async function register({
 }) {
     // if already reisgtered yet not verified
     const emailAlreadyExist = await User.findOne({ email })
-    const eventEmitter = emailEventEmitter.sendVerificationEmail()
+    // const eventEmitter = emailEventEmitter.sendVerificationEmail()
     const verificationToken = crypto.randomBytes(40).toString('hex')
 
     if (emailAlreadyExist && !emailAlreadyExist.isVerified) {
@@ -183,7 +183,7 @@ async function forgotPassword(email: string): Promise<UserInterface | null> {
     if (user && user?.isVerified) {
         const passwordToken = crypto.randomBytes(70).toString('hex')
         const origin = process.env.ORIGIN
-        const eventEmitter = await emailEventEmitter.sendResetPasswordEmail()
+        // const eventEmitter = await emailEventEmitter.sendResetPasswordEmail()
         eventEmitter.emit('reset', { email, passwordToken })
 
         const tenMinutes = 1000 * 60 * 10

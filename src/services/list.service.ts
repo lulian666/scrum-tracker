@@ -1,10 +1,9 @@
 import List, { ListInterface } from '@/models/List.model'
 import Board from '@/models/Board.model'
 import CustomError from '@/errors/index'
-import cardService from './card.service'
 import Card from '@/models/Card.model'
 
-async function create(boardId: string, { title, cards }: ListInterface) {
+async function createList(boardId: string, { title, cards }: ListInterface) {
     let board = await Board.findOne({ _id: boardId })
     if (!board) {
         throw new CustomError.BadRequestError(
@@ -17,7 +16,7 @@ async function create(boardId: string, { title, cards }: ListInterface) {
     return list
 }
 
-async function getList(listId: string) {
+async function getSingleList(listId: string) {
     const list = await List.findOne({ _id: listId })
     return list
 }
@@ -93,9 +92,9 @@ async function deleteList(boardId: string, listId: string) {
 }
 
 export default {
-    create,
+    createList,
     getBoardLists,
-    getList,
+    getSingleList,
     updateList,
     deleteList,
 }

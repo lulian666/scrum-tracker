@@ -1,13 +1,10 @@
-import { Schema, model, Document } from 'mongoose'
+import { Schema, model } from 'mongoose'
 
 export interface CardInterface {
     name: string
     title: string
     description: string
     attachments: string[]
-    // createdBy: string
-    // assignTo: string
-    // priority: string
     activities: string[]
 }
 
@@ -25,28 +22,12 @@ const CardSchema = new Schema<CardInterface>(
             type: String,
             maxlength: 400,
         },
-        // createdBy: {
-        //     type: String,
-        //     ref: 'User',
-        // },
-        // assignTo: {
-        //     type: String,
-        //     ref: 'User',
-        // },
         attachments: [
             {
                 type: String,
                 ref: 'Activity',
             },
         ],
-        // priority: {
-        //     type: String,
-        //     enum: {
-        //         values: ['high', 'normal', 'low'],
-        //         message: '{VALUE} is not supported',
-        //     },
-        //     default: 'normal',
-        // },
         activities: [
             {
                 type: String,

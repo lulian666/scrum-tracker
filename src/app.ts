@@ -11,11 +11,7 @@ import fileUpload from 'express-fileupload'
 import notFoundMiddleware from '@/middleware/notFound.middleware'
 import errorHandlerMiddleware from '@/middleware/errorHandler.middleware'
 
-import authRouter from '@/routes/auth.routes'
-import boardRouter from '@/routes/board.routes'
-import cardRouter from '@/routes/card.routes'
-import listRouter from '@/routes/list.routes'
-import activityRouter from '@/routes/comment.routes'
+import routers from '@/routes/index'
 
 const app: Application = express()
 app.set('trust proxy', 1)
@@ -39,11 +35,12 @@ app.get('/', (req, res) => {
     res.status(200).send('Hello World!')
 })
 
-app.use('/api/v1/auth', authRouter)
-app.use('/api/v1/boards', boardRouter)
-app.use('/api/v1/boards', listRouter)
-app.use('/api/v1/boards', cardRouter)
-app.use('/api/v1/boards', activityRouter)
+app.use('/api/v1/auth', routers.authRouter)
+app.use('/api/v1/boards', routers.boardRouter)
+app.use('/api/v1/boards', routers.listRouter)
+app.use('/api/v1/boards', routers.cardRouter)
+app.use('/api/v1/boards', routers.activityRouter)
+app.use('/api/v1/notifications', routers.notificationRouter)
 
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)

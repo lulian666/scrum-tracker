@@ -54,6 +54,13 @@ router
     )
 
 router
+    .route('/:boardId/notification')
+    .patch(
+        authenticationMiddleware.authenticateUser,
+        boardController.updateSubscription
+    )
+
+router
     .route('/:boardId/members')
     .get(
         authenticationMiddleware.authenticateUser,

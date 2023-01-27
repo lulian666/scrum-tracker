@@ -1,33 +1,31 @@
 import EventEmitter from 'events'
 import sendEmail from '@/utils/sendEmail.util'
 
-const sendVerificationEmail = () => {
-    const eventEmitter = new EventEmitter()
+const eventEmitter = new EventEmitter()
 
-    eventEmitter.on('signup', async (email) => {
-        const verifyLink = ``
-        return sendEmail({
-            to: 'email@email.com',
-            subject: 'Email Confirmation',
-            html: `<h1>test</h1>`,
-        })
+async function sendVerificationEmail(email: string) {
+    const verifyLink = ``
+    return sendEmail({
+        to: 'email@email.com',
+        subject: 'Email Confirmation',
+        html: `<h1>test</h1>`,
     })
-    return eventEmitter
 }
 
-const sendResetPasswordEmail = async () => {
-    const eventEmitter = new EventEmitter()
-
-    eventEmitter.on('reset', async ({ email, passwordToken }) => {
-        const verifyLink = ``
-        return sendEmail({
-            to: 'email@email.com',
-            subject: 'Reset Password',
-            html: `${passwordToken}`,
-        })
+async function sendResetPasswordEmail(email: string, passwordToken: string) {
+    const verifyLink = ``
+    return sendEmail({
+        to: 'email@email.com',
+        subject: 'Reset Password',
+        html: `${passwordToken}`,
     })
-    return eventEmitter
 }
+
+
+eventEmitter.on('signup', sendVerificationEmail)
+eventEmitter.on('reset', sendResetPasswordEmail)
+
+export default eventEmitter
 
 // const sendVerificationEmail = async ({
 //     name,
@@ -44,4 +42,4 @@ const sendResetPasswordEmail = async () => {
 //     })
 // }
 
-export default { sendVerificationEmail, sendResetPasswordEmail }
+// export default { sendVerificationEmail, sendResetPasswordEmail }

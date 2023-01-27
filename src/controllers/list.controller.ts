@@ -9,14 +9,14 @@ const createList = async (
 ): Promise<void> => {
     const { boardId } = req.params
     const { title } = req.body
-    const list = await listService.create(boardId, { title, cards: [] })
+    const list = await listService.createList(boardId, { title, cards: [] })
     const listForFE = { ...list.toObject(), boardId }
     res.status(StatusCodes.CREATED).json({ list: listForFE })
 }
 
 const getList = async (req: authInfoRequest, res: Response): Promise<void> => {
     const { boardId, listId } = req.params
-    const list = await listService.getList(listId)
+    const list = await listService.getSingleList(listId)
 
     const listForFE = { ...list?.toObject(), boardId }
 

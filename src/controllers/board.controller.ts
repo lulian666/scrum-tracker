@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { authInfoRequest } from './request.definition'
 import boardService from '@/services/board.service'
-import { object } from 'joi'
+import userBoardSubscriptionService from '@/services/UserBoardSubscription.service'
 
 const createBoard = async (
     req: authInfoRequest,
@@ -10,7 +10,7 @@ const createBoard = async (
 ): Promise<void> => {
     const { title, description, icon, lists } = req.body
     const managerId = req.user!.uuid
-    const board = await boardService.create({
+    const board = await boardService.createBoard({
         title,
         description,
         icon,
@@ -19,7 +19,16 @@ const createBoard = async (
         manager: managerId,
     })
 
-    res.status(StatusCodes.CREATED).json({ board })
+    // create UserBoardSubscription
+    const userBoardSubscription = await userBoardSubscriptionService.create(
+        req.user!.userId,
+        board.id
+    )
+
+    let customBoard: any = board.toObject()
+    customBoard['settings'] = { subscribed: userBoardSubscription.subscription }
+
+    res.status(StatusCodes.CREATED).json({ board: customBoard })
 }
 
 const getAllBoards = async (req: Request, res: Response): Promise<void> => {
@@ -45,13 +54,40 @@ const updateBoard = async (
     const { boardId } = req.params
 
     const board = await boardService.updateBoard(boardId, req.body)
-    res.status(StatusCodes.OK).json({ board })
+
+    // find out if user has subscribed this board
+    const userBoardSubscription = await userBoardSubscriptionService.getOne(
+        req.user!.userId,
+        boardId
+    )
+
+    let customBoard: any = board!.toObject()
+    customBoard['settings'] = {
+        subscribed: userBoardSubscription!.subscription,
+    }
+
+    res.status(StatusCodes.OK).json({ board: customBoard })
 }
 
-const getSingleBoard = async (req: Request, res: Response): Promise<void> => {
+const getSingleBoard = async (
+    req: authInfoRequest,
+    res: Response
+): Promise<void> => {
     const { boardId } = req.params
     const board = await boardService.getSingleBoard(boardId)
-    res.status(StatusCodes.OK).json({ board })
+
+    // find out if user has subscribed this board
+    const userBoardSubscription = await userBoardSubscriptionService.getOne(
+        req.user!.userId,
+        boardId
+    )
+
+    let customBoard: any = board.toObject()
+    customBoard['settings'] = {
+        subscribed: userBoardSubscription!.subscription,
+    }
+
+    res.status(StatusCodes.OK).json({ board: customBoard })
 }
 
 const deleteBoard = async (req: Request, res: Response): Promise<void> => {
@@ -78,6 +114,19 @@ const getBoardMembers = async (req: Request, res: Response): Promise<void> => {
     res.status(StatusCodes.OK).json({ members })
 }
 
+const updateSubscription = async (req: authInfoRequest, res: Response) => {
+    const { subscription } = req.body
+    const { userId } = req.user!
+    const { boardId } = req.params
+
+    const userBoardSubscription = await userBoardSubscriptionService.updateOne(
+        userId,
+        boardId,
+        subscription
+    )
+    res.status(StatusCodes.OK).json({ userBoardSubscription })
+}
+
 export default {
     createBoard,
     getAllBoards,
@@ -86,4 +135,5 @@ export default {
     getSingleBoard,
     deleteBoard,
     getBoardMembers,
+    updateSubscription,
 }

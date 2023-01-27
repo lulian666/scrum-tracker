@@ -3,7 +3,6 @@ import { UploadedFile } from 'express-fileupload'
 import fs from 'fs'
 
 async function uploadImage(imageFile: UploadedFile) {
-    console.log('imageFile', imageFile)
     const result = await cloudinary.uploader.upload(imageFile.tempFilePath, {
         filename_override: imageFile.name,
         folder: 'scrum-tracker',
