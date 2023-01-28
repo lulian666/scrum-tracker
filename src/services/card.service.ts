@@ -9,13 +9,7 @@ async function createCard(
     boardId: string,
     listId: string,
     userId: string,
-    {
-        title,
-        name,
-        description,
-        attachments = [],
-        activities = [],
-    }: CardInterface
+    { title, description, attachments = [], activities = [] }: CardInterface
 ) {
     let list = await List.findOne({ _id: listId })
     if (!list) {
@@ -25,7 +19,6 @@ async function createCard(
     }
     const card = await Card.create({
         title,
-        name,
         description,
         attachments,
         activities,

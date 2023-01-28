@@ -1,7 +1,6 @@
 import { Schema, model } from 'mongoose'
 
 export interface CardInterface {
-    name: string
     title: string
     description: string
     attachments: string[]
@@ -10,10 +9,6 @@ export interface CardInterface {
 
 const CardSchema = new Schema<CardInterface>(
     {
-        name: {
-            type: String,
-            // required: [true, 'Please provide name'],
-        },
         title: {
             type: String,
             required: [true, 'Please provide title'],

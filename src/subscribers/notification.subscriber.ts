@@ -6,11 +6,10 @@ import EventEmitter from 'events'
 import UserBoardSubscription, {
     UserBoardSubscriptionInterface,
 } from '@/models/UserBoardNotification.model'
-import { each } from 'lodash'
 
 const eventEmitter = new EventEmitter()
 
-//send notification to users who subscribed the board
+// send notification to users who subscribed the board
 // except for the one who create the card
 async function sendNewCardNotification(
     boardId: string,

@@ -6,7 +6,7 @@ import helmet from 'helmet'
 import cors from 'cors'
 import mongoSanitize from 'express-mongo-sanitize'
 import compression from 'compression'
-import 'express-async-errors'
+// import 'express-async-errors'
 import fileUpload from 'express-fileupload'
 import notFoundMiddleware from '@/middleware/notFound.middleware'
 import errorHandlerMiddleware from '@/middleware/errorHandler.middleware'
@@ -29,7 +29,7 @@ app.use(express.json())
 app.use(compression())
 app.use(cookieParser(process.env.JWT_SECRET))
 app.use(mongoSanitize())
-app.use(fileUpload({ useTempFiles: true }))
+app.use(fileUpload({ useTempFiles: true, defParamCharset: 'utf8' }))
 
 app.get('/', (req, res) => {
     res.status(200).send('Hello World!')

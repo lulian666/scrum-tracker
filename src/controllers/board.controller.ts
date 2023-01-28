@@ -8,13 +8,13 @@ const createBoard = async (
     req: authInfoRequest,
     res: Response
 ): Promise<void> => {
-    const { title, description, icon, lists } = req.body
+    const { title, description, icon } = req.body
     const managerId = req.user!.uuid
     const board = await boardService.createBoard({
         title,
         description,
         icon,
-        lists,
+        lists: [],
         members: [managerId],
         manager: managerId,
     })

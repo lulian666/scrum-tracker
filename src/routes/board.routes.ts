@@ -13,7 +13,7 @@ router
     .route('/')
     .post(
         authenticationMiddleware.authenticateUser,
-        // validationMiddleware(validation.create),
+        validationMiddleware(validation.create),
         boardController.createBoard
     )
     .get(
@@ -42,6 +42,7 @@ router
     .route('/:boardId')
     .patch(
         authenticationMiddleware.authenticateUser,
+        validationMiddleware(validation.update),
         boardController.updateBoard
     )
     .get(

@@ -8,11 +8,10 @@ const createCard = async (
     res: Response
 ): Promise<void> => {
     const { boardId, listId } = req.params
-    const { title, name, description } = req.body
+    const { title, description } = req.body
     const { userId } = req.user!
     const card = await cardService.createCard(boardId, listId, userId, {
         title,
-        name,
         description,
         attachments: [],
         activities: [],
