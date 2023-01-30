@@ -1,7 +1,7 @@
 import User, { UserInterface } from '@/models/User.model'
 import Token from '@/models/Token.model'
 import CustomError from '@/errors/index'
-import emailEventEmitter from '@/subscribers/email.subscriber'
+import eventEmitter from '@/subscribers/email.subscriber'
 import utils from '@/utils/index'
 import crypto from 'crypto'
 
@@ -15,10 +15,10 @@ async function register({
     email: string
     password: string
     role: string
-}): Promise<UserInterface> {
+}) {
     // if already reisgtered yet not verified
     const emailAlreadyExist = await User.findOne({ email })
-    const eventEmitter = emailEventEmitter.sendVerificationEmail()
+    // const eventEmitter = emailEventEmitter.sendVerificationEmail()
     const verificationToken = crypto.randomBytes(40).toString('hex')
 
     if (emailAlreadyExist && !emailAlreadyExist.isVerified) {
@@ -29,7 +29,13 @@ async function register({
             { new: true, runValidators: true }
         )
         eventEmitter.emit('signup', email)
-        return user!
+        // return user!
+
+        // sign an token for now
+        // will use email system to login
+        const safeUser = utils.createSafeUser(emailAlreadyExist)
+        const accessToken = utils.createJWT({ payload: { user: safeUser } })
+        return { safeUser, accessToken }
     }
 
     if (emailAlreadyExist && emailAlreadyExist.isVerified) {
@@ -44,7 +50,12 @@ async function register({
         verificationToken,
     })
     eventEmitter.emit('signup', email)
-    return user
+
+    // sign an token for now
+    // will use email system to login
+    const safeUser = utils.createSafeUser(user)
+    const accessToken = utils.createJWT({ payload: { user: safeUser } })
+    return { safeUser, accessToken }
 }
 
 async function login({
@@ -62,11 +73,11 @@ async function login({
     if (!user) {
         throw new CustomError.UnauthenticatedError('Invalid email and password')
     }
-    if (!user.isVerified) {
-        throw new CustomError.UnauthenticatedError(
-            'Please verify your email first'
-        )
-    }
+    // if (!user.isVerified) {
+    //     throw new CustomError.UnauthenticatedError(
+    //         'Please verify your email first'
+    //     )
+    // }
     const isPasswordCorrect = await user.comparePassword(password)
     if (!isPasswordCorrect) {
         throw new CustomError.UnauthenticatedError('Invalid email and password')
@@ -172,7 +183,7 @@ async function forgotPassword(email: string): Promise<UserInterface | null> {
     if (user && user?.isVerified) {
         const passwordToken = crypto.randomBytes(70).toString('hex')
         const origin = process.env.ORIGIN
-        const eventEmitter = await emailEventEmitter.sendResetPasswordEmail()
+        // const eventEmitter = await emailEventEmitter.sendResetPasswordEmail()
         eventEmitter.emit('reset', { email, passwordToken })
 
         const tenMinutes = 1000 * 60 * 10

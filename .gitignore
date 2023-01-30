@@ -105,3 +105,6 @@ dist
 
 tmp
 yarn.lock
+
+# swimm docs
+.swm/

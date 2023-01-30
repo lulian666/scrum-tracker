@@ -1,4 +1,4 @@
-import { Schema, model, Document } from 'mongoose'
+import { Schema, model } from 'mongoose'
 
 export interface BoardInterface {
     icon: string
@@ -12,32 +12,32 @@ export interface BoardInterface {
 const BoardSchema = new Schema<BoardInterface>(
     {
         icon: {
-            type: Schema.Types.String,
+            type: String,
             required: [true, 'Please provide icon'],
         },
         title: {
-            type: Schema.Types.String,
+            type: String,
             required: [true, 'Please provide title'],
         },
         description: {
-            type: Schema.Types.String,
+            type: String,
             default: 'This is a board description',
         },
         members: [
             {
-                type: Schema.Types.String,
+                type: String,
                 ref: 'User',
             },
         ],
         manager: {
             // default creator
-            type: Schema.Types.String,
+            type: String,
             ref: 'User',
             required: true,
         },
         lists: [
             {
-                type: Schema.Types.String,
+                type: String,
                 ref: 'List',
             },
         ],

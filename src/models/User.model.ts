@@ -2,6 +2,7 @@ import { Schema, model, Document } from 'mongoose'
 import bcrypt from 'bcrypt'
 
 export interface UserInterface extends Document {
+    avatar: string
     name: string
     email: string
     password: string
@@ -17,46 +18,53 @@ export interface UserInterface extends Document {
 
 const UserSchema = new Schema<UserInterface>(
     {
+        avatar: {
+            type: String,
+            default:
+                'https://res.cloudinary.com/dsx08lshl/image/upload/v1675075594/scrum-tracker/uh3zkfrdbrywyzyrntsa.jpg',
+        },
         name: {
-            type: Schema.Types.String,
+            type: String,
             required: [true, 'Please provide name'],
         },
         email: {
-            type: Schema.Types.String,
+            type: String,
             unique: true,
             required: [true, 'Please provide email'],
         },
         password: {
-            type: Schema.Types.String,
+            type: String,
             required: [true, 'Please provide password'],
+            // select: false,
         },
         role: {
-            type: Schema.Types.String,
+            type: String,
             enum: ['admin', 'user'],
             default: 'user',
         },
         verificationToken: {
-            type: Schema.Types.String,
+            type: String,
         },
         isVerified: {
-            type: Schema.Types.Boolean,
+            type: Boolean,
             default: false,
         },
         verifiedDate: {
-            type: Schema.Types.Date,
+            type: Date,
         },
         passwordToken: {
-            type: Schema.Types.String,
+            type: String,
         },
         passwordTokenExpirationDate: {
-            type: Schema.Types.Date,
+            type: Date,
         },
         from: {
-            type: Schema.Types.String,
+            type: String,
             default: 'from',
         },
     },
     {
+        id: true,
         timestamps: true,
         toJSON: { virtuals: true },
         toObject: { virtuals: true },

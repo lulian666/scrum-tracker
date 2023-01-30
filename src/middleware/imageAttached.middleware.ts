@@ -6,7 +6,7 @@ const shouldAttachImage = async (
     res: Response,
     next: NextFunction
 ) => {
-    const attachedImage = req.files?.image
+    const attachedImage = req.files?.file
     if (!attachedImage) {
         throw new CustomError.BadRequestError('Please upload image')
     }

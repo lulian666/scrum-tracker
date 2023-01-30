@@ -13,7 +13,7 @@ router
     .route('/')
     .post(
         authenticationMiddleware.authenticateUser,
-        // validationMiddleware(validation.create),
+        validationMiddleware(validation.create),
         boardController.createBoard
     )
     .get(
@@ -39,9 +39,24 @@ router
     )
 
 router
+    .route('/:boardId/notification')
+    .patch(
+        authenticationMiddleware.authenticateUser,
+        boardController.updateSubscription
+    )
+
+router
+    .route('/members')
+    .get(
+        authenticationMiddleware.authenticateUser,
+        boardController.getBoardMembers
+    )
+
+router
     .route('/:boardId')
     .patch(
         authenticationMiddleware.authenticateUser,
+        validationMiddleware(validation.update),
         boardController.updateBoard
     )
     .get(
@@ -52,12 +67,4 @@ router
         authenticationMiddleware.authenticateUser,
         boardController.deleteBoard
     )
-
-router
-    .route('/:boardId/members')
-    .get(
-        authenticationMiddleware.authenticateUser,
-        boardController.getBoardMembers
-    )
-
 export default router

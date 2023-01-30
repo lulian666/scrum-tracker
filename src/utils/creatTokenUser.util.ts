@@ -17,6 +17,7 @@ export interface SafeUserInterface {
     from: string
     role: string
     data: object
+    avatar: string
 }
 
 const createSafeUser = (user: UserInterface): SafeUserInterface => {
@@ -29,6 +30,9 @@ const createSafeUser = (user: UserInterface): SafeUserInterface => {
             displayName: user.name,
             email: user.email,
         },
+        avatar:
+            user.avatar ||
+            'https://res.cloudinary.com/dsx08lshl/image/upload/v1673763501/scrum-tracker/tmp-1-1673763499159_it8ckm.jpg',
     }
 }
 

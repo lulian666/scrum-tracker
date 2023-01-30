@@ -1,4 +1,4 @@
-import { Request, Response } from 'express'
+import { Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { authInfoRequest } from './request.definition'
 import cardService from '@/services/card.service'
@@ -8,16 +8,13 @@ const createCard = async (
     res: Response
 ): Promise<void> => {
     const { boardId, listId } = req.params
-    const { title, name, description } = req.body
+    const { title, description } = req.body
     const { userId } = req.user!
-    const card = await cardService.create(listId, {
+    const card = await cardService.createCard(boardId, listId, userId, {
         title,
-        name,
         description,
-        createdBy: userId,
-        assignTo: userId,
         attachments: [],
-        priority: 'normal',
+        activities: [],
     })
     const cardForFE = { ...card.toObject(), boardId, listId }
     res.status(StatusCodes.CREATED).send({ card: cardForFE })
@@ -28,7 +25,13 @@ const updateCard = async (
     res: Response
 ): Promise<void> => {
     const { boardId, cardId } = req.params
-    const customCard = await cardService.updateCard(boardId, cardId, req.body)
+    const { userId } = req.user!
+    const customCard = await cardService.updateCard(
+        boardId,
+        cardId,
+        userId,
+        req.body
+    )
 
     res.status(StatusCodes.OK).send({ card: customCard })
 }
@@ -47,8 +50,8 @@ const deleteCard = async (
     res: Response
 ): Promise<void> => {
     const { boardId, cardId } = req.params
-    await cardService.deleteCard(boardId, cardId)
-    res.status(StatusCodes.OK).json({})
+    const card = await cardService.deleteCard(boardId, cardId)
+    res.status(StatusCodes.OK).json({ card })
 }
 
 const getUserCards = async (

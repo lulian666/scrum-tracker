@@ -2,10 +2,9 @@ import Board, { BoardInterface } from '@/models/Board.model'
 import User from '@/models/User.model'
 import CustomError from '@/errors/index'
 import List from '@/models/List.model'
-import listService from './list.service'
 import Card from '@/models/Card.model'
 
-async function create({
+async function createBoard({
     title,
     description,
     icon,
@@ -21,6 +20,7 @@ async function create({
         manager,
         lists,
     })
+
     await board.populate({
         path: 'lists',
         select: 'id cards',
@@ -28,21 +28,24 @@ async function create({
     return board
 }
 
-async function getUserBoards(userId: String) {
-    // todo find should have query '{ manager: userId }
-    const boards = await Board.find()
+async function getUserBoards(userId: string) {
+    if (userId === '63d7b01e1b86d3a37c93ba29') {
+        console.log('test user it is')
+    }
+
+    const boards = await Board.find({
+        members: userId,
+    })
         .populate({
             path: 'lists',
+            options: { sort: { createdAt: -1 } },
             select: 'id cards',
         })
-        .populate({
-            path: 'members',
-            select: 'id name',
-        })
+        .sort({ createdAt: -1 })
     return boards
 }
 
-async function getSingleBoard(boardId: String) {
+async function getSingleBoard(boardId: string) {
     const board = await Board.findOne({ _id: boardId }).populate({
         path: 'lists',
         select: 'id cards',
@@ -69,7 +72,9 @@ async function updateBoard(boardId: string, updateData: any) {
         updateData.lists.forEach(async (list: { id: any; cards: any }) => {
             await List.findOneAndUpdate(
                 { _id: list.id },
-                { $set: { cards: list.cards } }
+                // Here's a bug if cards is empty
+                // { $set: { cards: list.cards } }
+                { cards: list.cards }
             )
         })
 
@@ -89,7 +94,7 @@ async function updateBoard(boardId: string, updateData: any) {
     return board
 }
 
-async function deleteBoard(boardId: String) {
+async function deleteBoard(boardId: string) {
     // delete board means also delete lists and cards in it
     const board = await Board.findOne({ _id: boardId }).populate({
         path: 'lists',
@@ -107,20 +112,25 @@ async function deleteBoard(boardId: String) {
     await board.delete()
 }
 
-async function getBoardMembers(boardId: String) {
-    const board = await Board.findOne({ _id: boardId })
-    if (!board) {
-        throw new CustomError.NotFoundError(
-            `Board with id ${boardId} does not exist`
-        )
-    }
-    const members: String[] = board.members
-    const users = User.find({ _id: members }).select('id name')
-    return users
+// get members in every scrum user can access
+// just tell me who is the user
+async function getBoardMembers(userId: string) {
+    // get all boards user are in
+    const boards = await Board.find({ members: userId })
+
+    // get all the ids
+    let ids: string[] = []
+    boards.forEach((board) => {
+        ids = ids.concat(board.members)
+    })
+
+    // get all members in these boards
+    const members = await User.find({ _id: ids }).select('id name avatar')
+    return members
 }
 
 export default {
-    create,
+    createBoard,
     getUserBoards,
     getSingleBoard,
     updateBoard,
