@@ -29,6 +29,10 @@ async function createBoard({
 }
 
 async function getUserBoards(userId: string) {
+    if (userId === '63d7b01e1b86d3a37c93ba29') {
+        console.log('test user it is')
+    }
+
     const boards = await Board.find({
         members: userId,
     })

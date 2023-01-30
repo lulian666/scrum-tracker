@@ -73,11 +73,11 @@ async function login({
     if (!user) {
         throw new CustomError.UnauthenticatedError('Invalid email and password')
     }
-    if (!user.isVerified) {
-        throw new CustomError.UnauthenticatedError(
-            'Please verify your email first'
-        )
-    }
+    // if (!user.isVerified) {
+    //     throw new CustomError.UnauthenticatedError(
+    //         'Please verify your email first'
+    //     )
+    // }
     const isPasswordCorrect = await user.comparePassword(password)
     if (!isPasswordCorrect) {
         throw new CustomError.UnauthenticatedError('Invalid email and password')
