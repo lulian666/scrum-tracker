@@ -1,8 +1,8 @@
 import { Schema, model, Document } from 'mongoose'
 import bcrypt from 'bcrypt'
-import { string } from 'joi'
 
 export interface UserInterface extends Document {
+    avatar: string
     name: string
     email: string
     password: string
@@ -18,6 +18,11 @@ export interface UserInterface extends Document {
 
 const UserSchema = new Schema<UserInterface>(
     {
+        avatar: {
+            type: String,
+            default:
+                'https://res.cloudinary.com/dsx08lshl/image/upload/v1675075594/scrum-tracker/uh3zkfrdbrywyzyrntsa.jpg',
+        },
         name: {
             type: String,
             required: [true, 'Please provide name'],
@@ -59,6 +64,7 @@ const UserSchema = new Schema<UserInterface>(
         },
     },
     {
+        id: true,
         timestamps: true,
         toJSON: { virtuals: true },
         toObject: { virtuals: true },

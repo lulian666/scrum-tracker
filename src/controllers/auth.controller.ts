@@ -2,7 +2,6 @@ import { StatusCodes } from 'http-status-codes'
 import { Request, Response } from 'express'
 import authService from '@/services/auth.service'
 import { authInfoRequest } from './request.definition'
-import utils from '@/utils/index'
 
 const register = async (req: Request, res: Response): Promise<void> => {
     const { email, displayName: name, password } = req.body

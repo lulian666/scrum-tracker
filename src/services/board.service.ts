@@ -29,17 +29,13 @@ async function createBoard({
 }
 
 async function getUserBoards(userId: string) {
-    // todo find should have query '{ manager: userId }
-    const boards = await Board.find()
+    const boards = await Board.find({
+        members: userId,
+    })
         .populate({
             path: 'lists',
             options: { sort: { createdAt: -1 } },
             select: 'id cards',
-        })
-        .populate({
-            path: 'members',
-            options: { sort: { updatedAt: -1 } },
-            select: 'id name',
         })
         .sort({ createdAt: -1 })
     return boards
@@ -112,16 +108,21 @@ async function deleteBoard(boardId: string) {
     await board.delete()
 }
 
-async function getBoardMembers(boardId: string) {
-    const board = await Board.findOne({ _id: boardId })
-    if (!board) {
-        throw new CustomError.NotFoundError(
-            `Board with id ${boardId} does not exist`
-        )
-    }
-    const members: string[] = board.members
-    const users = User.find({ _id: members }).select('id name')
-    return users
+// get members in every scrum user can access
+// just tell me who is the user
+async function getBoardMembers(userId: string) {
+    // get all boards user are in
+    const boards = await Board.find({ members: userId })
+
+    // get all the ids
+    let ids: string[] = []
+    boards.forEach((board) => {
+        ids = ids.concat(board.members)
+    })
+
+    // get all members in these boards
+    const members = await User.find({ _id: ids }).select('id name avatar')
+    return members
 }
 
 export default {

@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes'
 import { authInfoRequest } from './request.definition'
 import boardService from '@/services/board.service'
 import userBoardSubscriptionService from '@/services/UserBoardSubscription.service'
+import { object } from 'joi'
 
 const createBoard = async (
     req: authInfoRequest,
@@ -96,21 +97,12 @@ const deleteBoard = async (req: Request, res: Response): Promise<void> => {
     res.status(StatusCodes.OK).json({})
 }
 
-const getBoardMembers = async (req: Request, res: Response): Promise<void> => {
-    const { boardId } = req.params
-    // const members = await boardService.getBoardMembers(boardId)
-    const members = [
-        {
-            _id: '63b8eece76774b831b4b5c03',
-            name: 'dj6',
-            avatar: 'assets/images/avatars/female-01.jpg',
-            data: {
-                displayName: 'dj6',
-            },
-            uuid: '63b8eece76774b831b4b5c03',
-            id: '63b8eece76774b831b4b5c03',
-        },
-    ]
+const getBoardMembers = async (
+    req: authInfoRequest,
+    res: Response
+): Promise<void> => {
+    const { userId } = req.user!
+    const members = await boardService.getBoardMembers(userId)
     res.status(StatusCodes.OK).json({ members })
 }
 

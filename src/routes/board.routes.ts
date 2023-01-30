@@ -39,6 +39,20 @@ router
     )
 
 router
+    .route('/:boardId/notification')
+    .patch(
+        authenticationMiddleware.authenticateUser,
+        boardController.updateSubscription
+    )
+
+router
+    .route('/members')
+    .get(
+        authenticationMiddleware.authenticateUser,
+        boardController.getBoardMembers
+    )
+
+router
     .route('/:boardId')
     .patch(
         authenticationMiddleware.authenticateUser,
@@ -53,19 +67,4 @@ router
         authenticationMiddleware.authenticateUser,
         boardController.deleteBoard
     )
-
-router
-    .route('/:boardId/notification')
-    .patch(
-        authenticationMiddleware.authenticateUser,
-        boardController.updateSubscription
-    )
-
-router
-    .route('/:boardId/members')
-    .get(
-        authenticationMiddleware.authenticateUser,
-        boardController.getBoardMembers
-    )
-
 export default router
